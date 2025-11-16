@@ -1,0 +1,180 @@
+# ============================================
+# GYM APP PROJECT - ROOT GITIGNORE
+# ============================================
+
+# ==================== BACKEND ====================
+
+# Node modules
+backend/node_modules/
+backend/npm-debug.log*
+backend/yarn-debug.log*
+backend/yarn-error.log*
+
+# Environment variables (CRITICAL - NEVER COMMIT)
+backend/.env
+backend/.env.*
+backend/.env.local
+backend/.env.production
+backend/.env.development
+
+# Firebase Service Account (CRITICAL - NEVER COMMIT)
+backend/firebase-service-account.json
+backend/**/firebase*.json
+backend/serviceAccountKey.json
+
+# Prisma generated files
+backend/prisma/migrations/**/migration.sql
+backend/.prisma/
+
+# Build output
+backend/dist/
+backend/build/
+
+# Logs
+backend/logs/
+backend/*.log
+
+# IDE
+backend/.vscode/
+backend/.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# ==================== ANDROID ====================
+
+# Built application files
+android/*.apk
+android/*.ap_
+android/*.aab
+
+# Files for the ART/Dalvik VM
+android/*.dex
+
+# Java class files
+android/*.class
+
+# Generated files
+android/bin/
+android/gen/
+android/out/
+android/release/
+
+# Gradle files
+android/.gradle/
+android/build/
+android/*/build/
+android/buildOutputs/
+
+# Local configuration file (SDK path, etc)
+android/local.properties
+
+# Android Studio
+android/.idea/
+android/*.iml
+android/.externalNativeBuild
+android/.cxx
+
+# Keystore files (CRITICAL - NEVER COMMIT)
+android/*.jks
+android/*.keystore
+android/key.properties
+android/keystore.properties
+
+# Google Services (CRITICAL - NEVER COMMIT)
+android/app/google-services.json
+android/google-services.json
+
+# Firebase (CRITICAL - NEVER COMMIT)
+android/app/src/main/google-services.json
+android/firebase-config.json
+
+# Environment-specific configs
+android/app/src/release/res/values/config.xml
+android/app/src/debug/res/values/config.xml
+
+# Captures from Android Studio
+android/captures/
+
+# ProGuard
+android/proguard/
+
+# Log Files
+android/*.log
+
+# Android Profiling
+android/*.hprof
+
+# ==================== SENSITIVE DATA ====================
+
+# API Keys & Secrets
+**/secrets/
+**/private/
+**/*secret*
+**/*key*
+**/*credential*
+
+# Database files
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+
+# Backup files
+**/*.backup
+**/*.bak
+**/*~
+
+# ==================== IDE & OS ====================
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# NetBeans
+nbproject/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+
+# ==================== MISC ====================
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Coverage reports
+coverage/
+*.coverage
+
+# Test output
+test-results/

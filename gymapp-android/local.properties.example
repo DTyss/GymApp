@@ -1,0 +1,12 @@
+# ============================================
+# ANDROID LOCAL PROPERTIES EXAMPLE
+# ============================================
+
+# Location of the Android SDK
+sdk.dir=/Users/YOUR_USERNAME/Library/Android/sdk
+
+# Or for Windows:
+# sdk.dir=C\:\\Users\\YOUR_USERNAME\\AppData\\Local\\Android\\sdk
+
+# Or for Linux:
+# sdk.dir=/home/YOUR_USERNAME/Android/Sdk

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Info -->
+    <string name="app_name">GymApp</string>
+    <string name="default_notification_channel_id">gym_notifications</string>
+
+    <!-- ===== AUTH SCREEN ===== -->
+    <string name="login_title">GYM APP</string>
+    <string name="login_subtitle">Quản lý tập luyện hiệu quả</string>
+    <string name="email_or_phone_label">Email hoặc Số điện thoại</string>
+    <string name="email_or_phone_hint">user@example.com hoặc 0912345678</string>
+    <string name="password_label">Mật khẩu</string>
+    <string name="password_hint">Nhập mật khẩu</string>
+    <string name="login_button">Đăng nhập</string>
+    <string name="dont_have_account">Chưa có tài khoản?</string>
+    <string name="register_now">Đăng ký ngay</string>
+
+    <!-- Register Screen -->
+    <string name="register_title">Đăng ký tài khoản</string>
+    <string name="create_new_account">Tạo tài khoản mới</string>
+    <string name="full_name_label">Họ và tên</string>
+    <string name="full_name_hint">Nguyễn Văn A</string>
+    <string name="confirm_password_label">Xác nhận mật khẩu</string>
+    <string name="confirm_password_hint">Nhập lại mật khẩu</string>
+    <string name="register_button">Đăng ký</string>
+    <string name="already_have_account">Đã có tài khoản?</string>
+    <string name="login_link">Đăng nhập</string>
+
+    <!-- ===== BOTTOM NAVIGATION ===== -->
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_classes">Lịch lớp</string>
+    <string name="nav_checkin">Check-in</string>
+    <string name="nav_notifications">Thông báo</string>
+    <string name="nav_admin">Admin</string>
+    <string name="nav_profile">Hồ sơ</string>
+
+    <!-- ===== HOME SCREEN ===== -->
+    <string name="welcome_greeting">Xin chào,</string>
+    <string name="your_memberships">Gói tập của bạn</string>
+    <string name="no_memberships">Bạn chưa có gói tập nào</string>
+    <string name="explore_plans">Khám phá các gói tập</string>
+    <string name="view_plans_desc">Xem các gói tập phù hợp với bạn</string>
+    <string name="membership_status_active">Đang hoạt động</string>
+    <string name="membership_status_expired">Hết hạn</string>
+    <string name="membership_status_paused">Tạm dừng</string>
+
+    <!-- ===== CLASSES SCREEN ===== -->
+    <string name="classes_title">Lịch lớp</string>
+    <string name="no_classes">Chưa có lớp học nào</string>
+    <string name="book_class">Đặt lớp</string>
+    <string name="class_full">Hết chỗ</string>
+    <string name="trainer_label">HLV: %s</string>
+    <string name="branch_label">Chi nhánh: %s</string>
+    <string name="available_slots">Còn %1$d/%2$d chỗ</string>
+
+    <!-- ===== CHECKIN SCREEN ===== -->
+    <string name="checkin_title">Check-in</string>
+    <string name="qr_code_title">Mã QR Check-in</string>
+    <string name="qr_code_instruction">Đưa mã này cho nhân viên quầy để check-in</string>
+    <string name="qr_auto_refresh">Mã tự động làm mới sau %ds</string>
+    <string name="refresh_qr">Làm mới mã</string>
+    <string name="checkin_deduct_session">Mỗi lần check-in sẽ trừ 1 buổi tập trong gói của bạn</string>
+    <string name="checkin_history">Lịch sử Check-in</string>
+    <string name="no_checkin_history">Chưa có lịch sử check-in</string>
+    <string name="total_checkins">Tổng số lần check-in</string>
+    <string name="checkin_times">%d lần</string>
+    <string name="checkin_success">Thành công</string>
+    <string name="checkin_failed">Thất bại</string>
+
+    <!-- ===== NOTIFICATIONS SCREEN ===== -->
+    <string name="notifications_title">Thông báo</string>
+    <string name="mark_all_read">Đánh dấu tất cả đã đọc</string>
+    <string name="no_notifications">Chưa có thông báo nào</string>
+
+    <!-- ===== PROFILE SCREEN ===== -->
+    <string name="profile_title">Hồ sơ</string>
+    <string name="edit_profile">Chỉnh sửa hồ sơ</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="email_label">Email</string>
+    <string name="phone_label">Số điện thoại</string>
+    <string name="status_label">Trạng thái</string>
+    <string name="memberships_count">Số gói tập</string>
+    <string name="memberships_count_value">%d gói</string>
+    <string name="version_info">Phiên bản 1.0.0</string>
+    <string name="not_provided">Chưa có</string>
+
+    <!-- Edit Profile -->
+    <string name="edit_profile_title">Chỉnh sửa hồ sơ</string>
+    <string name="update_profile_info">Cập nhật thông tin cá nhân của bạn</string>
+    <string name="save_changes">Lưu thay đổi</string>
+    <string name="cancel">Hủy</string>
+
+    <!-- ===== PLANS SCREEN ===== -->
+    <string name="plans_title">Các gói tập</string>
+    <string name="choose_plan">Chọn gói tập phù hợp</string>
+    <string name="contact_reception">Liên hệ quầy lễ tân hoặc admin để đăng ký gói</string>
+    <string name="no_plans">Chưa có gói tập nào</string>
+    <string name="plan_status_active">Đang bán</string>
+    <string name="duration_days">Thời hạn</string>
+    <string name="sessions_count">Số buổi tập</string>
+    <string name="price_per_session">Giá mỗi buổi</string>
+    <string name="days_value">%d ngày</string>
+    <string name="sessions_value">%d buổi</string>
+    <string name="contact_reception_to_register">Liên hệ quầy lễ tân để đăng ký gói này</string>
+
+    <!-- ===== ADMIN SCREENS ===== -->
+    <string name="admin_panel">Admin Panel</string>
+    <string name="admin_system_management">Quản lý hệ thống phòng gym</string>
+    <string name="dashboard_title">Dashboard Admin</string>
+    <string name="system_overview">Tổng quan hệ thống</string>
+
+    <!-- Dashboard Stats -->
+    <string name="users_label">Người dùng</string>
+    <string name="classes_label">Lớp học</string>
+    <string name="checkins_label">Check-in</string>
+    <string name="bookings_label">Bookings</string>
+    <string name="memberships_label">Memberships</string>
+    <string name="total_count">Tổng số</string>
+    <string name="members_count">Hội viên</string>
+    <string name="active_members">Đang hoạt động</string>
+    <string name="today_count">Hôm nay</string>
+    <string name="this_month">Tháng này</string>
+    <string name="active_status">Đang active</string>
+
+    <!-- Manage Classes -->
+    <string name="manage_classes_title">Quản lý Lớp học</string>
+    <string name="create_class">Tạo lớp mới</string>
+    <string name="edit_class">Sửa lớp học</string>
+    <string name="delete_class">Xóa lớp học</string>
+    <string name="confirm_delete">Xác nhận xóa</string>
+    <string name="confirm_delete_class">Bạn có chắc muốn xóa lớp \"%s\"?</string>
+    <string name="delete">Xóa</string>
+
+    <!-- Create/Edit Class -->
+    <string name="class_name_label">Tên lớp</string>
+    <string name="class_name_hint">Yoga buổi sáng</string>
+    <string name="description_label">Mô tả</string>
+    <string name="description_hint">Mô tả chi tiết về lớp học...</string>
+    <string name="branch_label_select">Chi nhánh</string>
+    <string name="select_branch">Chọn chi nhánh</string>
+    <string name="capacity_label">Sức chứa</string>
+    <string name="capacity_hint">20</string>
+    <string name="time_label">Thời gian</string>
+    <string name="date_label">Ngày (dd/MM/yyyy)</string>
+    <string name="start_time_label">Giờ bắt đầu (HH:mm)</string>
+    <string name="end_time_label">Giờ kết thúc (HH:mm)</string>
+    <string name="create_class_button">Tạo lớp</string>
+    <string name="trainer_conflict_note">Hệ thống sẽ tự động kiểm tra xung đột lịch của huấn luyện viên</string>
+
+    <!-- Manage Memberships -->
+    <string name="manage_memberships_title">Quản lý Memberships</string>
+    <string name="create_membership">Tạo membership</string>
+    <string name="extend_membership">Gia hạn</string>
+    <string name="pause_membership">Tạm dừng</string>
+    <string name="resume_membership">Kích hoạt</string>
+    <string name="filter">Lọc</string>
+    <string name="filter_all">Tất cả</string>
+    <string name="filter_active">Đang hoạt động</string>
+    <string name="filter_expired">Hết hạn</string>
+    <string name="filter_paused">Tạm dừng</string>
+
+    <!-- Create Membership -->
+    <string name="create_membership_title">Tạo Membership</string>
+    <string name="create_membership_desc">Tạo membership mới cho hội viên</string>
+    <string name="user_id_label">User ID</string>
+    <string name="user_id_hint">Nhập ID của user (ví dụ: 123)</string>
+    <string name="select_plan">Chọn gói tập</string>
+    <string name="plan_details">Chi tiết gói</string>
+    <string name="price_label">Giá</string>
+    <string name="start_date_label">Ngày bắt đầu (tùy chọn)</string>
+    <string name="start_date_hint">yyyy-MM-dd (để trống = hôm nay)</string>
+    <string name="create_membership_button">Tạo Membership</string>
+    <string name="membership_auto_active_note">Membership sẽ được tạo với trạng thái \'active\'. Thời hạn tự động tính từ ngày bắt đầu.</string>
+
+    <!-- Extend Membership -->
+    <string name="extend_membership_title">Gia hạn Membership</string>
+    <string name="current_info">Thông tin hiện tại</string>
+    <string name="member_label">Hội viên</string>
+    <string name="plan_label">Gói</string>
+    <string name="expiry_date_label">Hạn sử dụng</string>
+    <string name="remaining_sessions">Còn lại</string>
+    <string name="extend_info">Thông tin gia hạn</string>
+    <string name="extend_info_desc">Nhập số ngày và/hoặc số buổi muốn thêm</string>
+    <string name="additional_days_label">Thêm số ngày</string>
+    <string name="additional_days_hint">30</string>
+    <string name="additional_sessions_label">Thêm số buổi</string>
+    <string name="additional_sessions_hint">10</string>
+    <string name="after_extend">Sau khi gia hạn</string>
+    <string name="extend_days_preview">• Thời hạn: +%d ngày</string>
+    <string name="extend_sessions_preview">• Số buổi: %1$d → %2$d buổi</string>
+    <string name="extend_button">Gia hạn</string>
+    <string name="extend_auto_activate_note">Nếu membership đang \'expired\', gia hạn ngày sẽ tự động kích hoạt lại membership.</string>
+
+    <!-- Admin Menu -->
+    <string name="dashboard_menu">Dashboard</string>
+    <string name="dashboard_desc">Thống kê tổng quan hệ thống</string>
+    <string name="manage_classes_menu">Quản lý Lớp học</string>
+    <string name="manage_classes_desc">Tạo, sửa, xóa lớp học</string>
+    <string name="manage_memberships_menu">Quản lý Memberships</string>
+    <string name="manage_memberships_desc">Tạo, gia hạn, tạm dừng membership</string>
+    <string name="manage_users_menu">Quản lý Users</string>
+    <string name="manage_users_desc">Xem, sửa thông tin người dùng</string>
+    <string name="manage_plans_menu">Quản lý Plans</string>
+    <string name="manage_plans_desc">CRUD các gói tập</string>
+    <string name="manage_branches_menu">Quản lý Branches</string>
+    <string name="manage_branches_desc">CRUD chi nhánh</string>
+    <string name="coming_soon">Đang phát triển...</string>
+
+    <!-- ===== COMMON ===== -->
+    <string name="back">Quay lại</string>
+    <string name="refresh">Làm mới</string>
+    <string name="retry">Thử lại</string>
+    <string name="loading">Đang tải...</string>
+    <string name="error">Lỗi</string>
+    <string name="success">Thành công</string>
+    <string name="confirm">Xác nhận</string>
+    <string name="save">Lưu</string>
+    <string name="edit">Sửa</string>
+    <string name="history">Lịch sử</string>
+
+    <!-- Role Names -->
+    <string name="role_member">Hội viên</string>
+    <string name="role_trainer">Huấn luyện viên</string>
+    <string name="role_admin">Quản trị viên</string>
+    <string name="role_receptionist">Lễ tân</string>
+
+    <!-- Status Names -->
+    <string name="status_active">Đang hoạt động</string>
+    <string name="status_inactive">Tạm ngừng</string>
+    <string name="status_banned">Bị khóa</string>
+
+    <!-- Error Messages -->
+    <string name="error_network">Lỗi kết nối mạng</string>
+    <string name="error_unknown">Đã xảy ra lỗi</string>
+    <string name="error_load_data">Lỗi tải dữ liệu</string>
+
+    <!-- Success Messages -->
+    <string name="success_created">Tạo thành công</string>
+    <string name="success_updated">Cập nhật thành công</string>
+    <string name="success_deleted">Xóa thành công</string>
+
+    <!-- Validation Messages -->
+    <string name="validation_required_field">Trường này không được để trống</string>
+    <string name="validation_invalid_email">Email không hợp lệ</string>
+    <string name="validation_invalid_phone">Số điện thoại không hợp lệ</string>
+    <string name="validation_password_min_length">Mật khẩu phải có ít nhất 6 ký tự</string>
+    <string name="validation_password_mismatch">Mật khẩu không khớp</string>
+</resources>

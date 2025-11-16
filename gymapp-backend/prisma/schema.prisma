@@ -1,0 +1,185 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  member
+  trainer
+  admin
+  receptionist
+}
+
+enum UserStatus {
+  active
+  inactive
+  banned
+}
+
+enum MembershipStatus {
+  active
+  expired
+  paused
+}
+
+enum BookingStatus {
+  booked
+  cancelled
+  attended
+  no_show
+}
+
+enum CheckinMethod {
+  qr
+  manual
+}
+
+enum CheckinStatus {
+  success
+  failed
+}
+
+enum Platform {
+  android
+  ios
+  web
+}
+
+model User {
+  id           BigInt     @id @default(autoincrement())
+  email        String?    @unique
+  phone        String?    @unique
+  passwordHash String
+  fullName     String
+  role         Role       @default(member)
+  status       UserStatus @default(active)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  memberships Membership[]
+
+  classesTaught Class[]        @relation("TrainerClasses")
+  bookings      Booking[]
+  checkins      Checkin[]
+  notifications Notification[]
+  devices       Device[]
+}
+
+model Plan {
+  id           BigInt   @id @default(autoincrement())
+  name         String
+  price        Decimal
+  sessions     Int
+  durationDays Int
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  memberships Membership[]
+}
+
+model Branch {
+  id        BigInt   @id @default(autoincrement())
+  name      String
+  address   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  classes  Class[]
+  checkins Checkin[]
+}
+
+model Membership {
+  id                BigInt           @id @default(autoincrement())
+  userId            BigInt
+  planId            BigInt
+  startDate         DateTime
+  endDate           DateTime
+  remainingSessions Int
+  status            MembershipStatus @default(active)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  plan Plan @relation(fields: [planId], references: [id])
+
+  @@index([userId])
+  @@index([status, endDate])
+}
+
+model Class {
+  id          BigInt   @id @default(autoincrement())
+  title       String
+  description String?
+  trainerId   BigInt
+  branchId    BigInt
+  startTime   DateTime
+  endTime     DateTime
+  capacity    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  trainer  User      @relation("TrainerClasses", fields: [trainerId], references: [id])
+  branch   Branch    @relation(fields: [branchId], references: [id])
+  bookings Booking[]
+
+  @@index([branchId, startTime])
+  @@index([trainerId, startTime])
+}
+
+model Booking {
+  id        BigInt        @id @default(autoincrement())
+  classId   BigInt
+  userId    BigInt
+  status    BookingStatus @default(booked)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  class Class @relation(fields: [classId], references: [id])
+
+  @@unique([classId, userId])
+  @@index([userId, status])
+}
+
+model Checkin {
+  id        BigInt        @id @default(autoincrement())
+  userId    BigInt
+  branchId  BigInt
+  method    CheckinMethod @default(qr)
+  status    CheckinStatus @default(success)
+  checkedAt DateTime      @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  branch Branch @relation(fields: [branchId], references: [id])
+
+  @@index([userId, checkedAt])
+  @@index([branchId, checkedAt])
+}
+
+model Notification {
+  id     BigInt   @id @default(autoincrement())
+  userId BigInt
+  title  String
+  body   String
+  isRead Boolean  @default(false)
+  sentAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, isRead])
+}
+
+model Device {
+  id        BigInt   @id @default(autoincrement())
+  userId    BigInt
+  fcmToken  String   @unique
+  platform  Platform @default(android)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
