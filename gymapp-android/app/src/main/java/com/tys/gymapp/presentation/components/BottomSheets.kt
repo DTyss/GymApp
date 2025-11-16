@@ -40,7 +40,7 @@ fun GymBottomSheet(
                     .height(4.dp)
                     .padding(vertical = Spacing.sm)
             ) {
-                HorizontalDivider(
+                Divider(
                     modifier = Modifier.fillMaxWidth(),
                     thickness = 4.dp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)

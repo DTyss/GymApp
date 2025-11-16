@@ -73,6 +73,7 @@ fun AdminStatCard(
 /**
  * Simple list item card for admin lists
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminListItemCard(
     title: String,
@@ -260,7 +261,7 @@ fun AdminSectionDivider(
             .padding(vertical = Spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        HorizontalDivider(
+        Divider(
             modifier = Modifier.weight(1f),
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
@@ -271,7 +272,7 @@ fun AdminSectionDivider(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
-        HorizontalDivider(
+        Divider(
             modifier = Modifier.weight(1f),
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)

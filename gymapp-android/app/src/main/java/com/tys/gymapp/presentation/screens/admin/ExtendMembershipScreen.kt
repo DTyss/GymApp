@@ -14,9 +14,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.presentation.components.*
+import com.tys.gymapp.presentation.utils.formatDate
 import java.text.NumberFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -267,14 +266,5 @@ fun MembershipCurrentInfoRow(
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
         )
-    }
-}
-
-fun formatDate(dateString: String): String {
-    return try {
-        val date = LocalDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
-        date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-    } catch (e: Exception) {
-        dateString
     }
 }

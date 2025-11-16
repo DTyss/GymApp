@@ -42,18 +42,42 @@ fun MainScreen(
     val userRole by tokenManager.getUserRole().collectAsState(initial = null)
 
     val bottomNavItems = remember(userRole) {
-        buildList {
-            add(homeItem)
-            add(classesItem)
-            add(checkinItem)
-            add(notificationsItem)
+        buildList<BottomNavItem> {
+            add(BottomNavItem(
+                route = BottomNavScreen.Home.route,
+                title = BottomNavScreen.Home.title,
+                icon = Icons.Default.Home
+            ))
+            add(BottomNavItem(
+                route = BottomNavScreen.Classes.route,
+                title = BottomNavScreen.Classes.title,
+                icon = Icons.Default.CalendarMonth
+            ))
+            add(BottomNavItem(
+                route = BottomNavScreen.Checkin.route,
+                title = BottomNavScreen.Checkin.title,
+                icon = Icons.Default.QrCode2
+            ))
+            add(BottomNavItem(
+                route = BottomNavScreen.Notifications.route,
+                title = BottomNavScreen.Notifications.title,
+                icon = Icons.Default.Notifications
+            ))
 
             // Chỉ show Admin tab nếu role = admin
             if (userRole == "admin") {
-                add(adminItem)
+                add(BottomNavItem(
+                    route = BottomNavScreen.Admin.route,
+                    title = BottomNavScreen.Admin.title,
+                    icon = Icons.Default.AdminPanelSettings
+                ))
             }
 
-            add(profileItem)
+            add(BottomNavItem(
+                route = BottomNavScreen.Profile.route,
+                title = BottomNavScreen.Profile.title,
+                icon = Icons.Default.Person
+            ))
         }
     }
 

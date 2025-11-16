@@ -30,8 +30,9 @@ import java.time.format.DateTimeFormatter
 import android.Manifest
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.shouldShowRationale
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(
     onNavigateToPlans: () -> Unit,

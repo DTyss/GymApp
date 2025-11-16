@@ -17,6 +17,7 @@ import com.tys.gymapp.data.remote.dto.ClassItem
 import com.tys.gymapp.presentation.components.*
 import com.tys.gymapp.presentation.theme.Spacing
 import com.tys.gymapp.presentation.theme.Elevation
+import com.tys.gymapp.presentation.theme.Warning
 import androidx.compose.foundation.lazy.rememberLazyListState
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -74,35 +75,13 @@ fun ClassesScreen(
         ) {
             when (val state = uiState) {
                 is ClassesUiState.Loading -> {
-                    if (state.classes.isEmpty()) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(Spacing.screenPadding),
-                            verticalArrangement = Arrangement.spacedBy(Spacing.md)
-                        ) {
-                            items(3) {
-                                ShimmerCard()
-                            }
-                        }
-                    } else {
-                        LazyColumn(
-                            state = listState,
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(Spacing.screenPadding),
-                            verticalArrangement = Arrangement.spacedBy(Spacing.md)
-                        ) {
-                            items(
-                                items = state.classes,
-                                key = { it.id }
-                            ) { classItem ->
-                                AnimatedVisibilityWithFade(visible = true) {
-                                    EnhancedClassCard(
-                                        classItem = classItem,
-                                        onBookClick = { viewModel.bookClass(classItem.id) },
-                                        isBooking = bookingState is BookingState.Loading
-                                    )
-                                }
-                            }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(Spacing.screenPadding),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                    ) {
+                        items(3) {
+                            ShimmerCard()
                         }
                     }
                 }
@@ -216,7 +195,7 @@ fun EnhancedClassCard(
             Surface(
                 color = when {
                     availabilityRatio > 0.5f -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                    availabilityRatio > 0.2f -> MaterialTheme.colorScheme.warning.copy(alpha = 0.1f)
+                    availabilityRatio > 0.2f -> Warning.copy(alpha = 0.1f)
                     else -> MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
                 },
                 shape = RoundedCornerShape(8.dp)
@@ -231,7 +210,7 @@ fun EnhancedClassCard(
                     style = MaterialTheme.typography.labelSmall,
                     color = when {
                         availabilityRatio > 0.5f -> MaterialTheme.colorScheme.primary
-                        availabilityRatio > 0.2f -> MaterialTheme.colorScheme.warning
+                        availabilityRatio > 0.2f -> Warning
                         else -> MaterialTheme.colorScheme.error
                     }
                 )

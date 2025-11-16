@@ -16,8 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.data.remote.dto.Plan
 import com.tys.gymapp.presentation.components.*
 import com.tys.gymapp.presentation.theme.Spacing
-import java.text.NumberFormat
-import java.util.*
+import com.tys.gymapp.presentation.utils.formatPrice
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -182,8 +181,4 @@ fun SimpleManagePlanCard(
     )
 }
 
-fun formatPrice(price: Double): String {
-    val formatter = NumberFormat.getNumberInstance(Locale("vi", "VN"))
-    return "${formatter.format(price)} VNĐ"
-}
 

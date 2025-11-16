@@ -5,6 +5,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -187,6 +188,7 @@ fun EnhancedGymButton(
  * ===================================
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnhancedCard(
     modifier: Modifier = Modifier,
@@ -275,7 +277,8 @@ fun EnhancedTextField(
     enabled: Boolean = true,
     singleLine: Boolean = true
 ) {
-    var isFocused by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
 
     Column(modifier = modifier) {
         OutlinedTextField(
@@ -286,22 +289,24 @@ fun EnhancedTextField(
             leadingIcon = if (leadingIcon != null) {
                 { Icon(leadingIcon, contentDescription = null) }
             } else null,
-            trailingIcon = {
-                Row {
-                    if (success && value.isNotEmpty()) {
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = "Success",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    if (trailingIcon != null && onTrailingIconClick != null) {
-                        IconButton(onClick = onTrailingIconClick) {
-                            Icon(trailingIcon, contentDescription = null)
+            trailingIcon = if (success && value.isNotEmpty() || (trailingIcon != null && onTrailingIconClick != null)) {
+                {
+                    Row {
+                        if (success && value.isNotEmpty()) {
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = "Success",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        if (trailingIcon != null && onTrailingIconClick != null) {
+                            IconButton(onClick = onTrailingIconClick) {
+                                Icon(trailingIcon, contentDescription = null)
+                            }
                         }
                     }
                 }
-            },
+            } else null,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(
@@ -312,6 +317,7 @@ fun EnhancedTextField(
             singleLine = singleLine,
             isError = isError,
             enabled = enabled,
+            interactionSource = interactionSource,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = when {
                     success -> MaterialTheme.colorScheme.primary
@@ -323,8 +329,7 @@ fun EnhancedTextField(
                     isError -> MaterialTheme.colorScheme.error
                     else -> MaterialTheme.colorScheme.outline
                 }
-            ),
-            onFocusChange = { isFocused = it.isFocused }
+            )
         )
 
         // Helper text or error message
@@ -480,8 +485,9 @@ fun EnhancedEmptyState(
  * ===================================
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterChip(
+fun EnhancedFilterChip(
     text: String,
     selected: Boolean,
     onClick: () -> Unit,
@@ -558,7 +564,7 @@ fun ProgressCard(
             Spacer(modifier = Modifier.height(Spacing.sm))
 
             LinearProgressIndicator(
-                progress = { progress },
+                progress = progress,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)

@@ -15,8 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.data.remote.dto.UpdateUserRequest
 import com.tys.gymapp.presentation.components.*
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import com.tys.gymapp.presentation.utils.formatDate
+import com.tys.gymapp.presentation.utils.getRoleName
+import com.tys.gymapp.presentation.utils.getStatusName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -406,7 +407,7 @@ fun MembershipItemCard(membership: com.tys.gymapp.data.remote.dto.MembershipLite
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                text = membership.plan.name,
+                text = "Gói tập #${membership.id.take(8)}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -424,6 +425,7 @@ fun MembershipItemCard(membership: com.tys.gymapp.data.remote.dto.MembershipLite
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditUserDialog(
     user: com.tys.gymapp.data.remote.dto.UserDetail,
@@ -527,31 +529,4 @@ fun EditUserDialog(
     )
 }
 
-fun formatDate(dateString: String): String {
-    return try {
-        val date = LocalDateTime.parse(dateString.replace("Z", ""))
-        date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-    } catch (e: Exception) {
-        dateString
-    }
-}
-
-fun getRoleName(role: String): String {
-    return when (role) {
-        "member" -> "Hội viên"
-        "trainer" -> "Huấn luyện viên"
-        "admin" -> "Quản trị viên"
-        "receptionist" -> "Lễ tân"
-        else -> role
-    }
-}
-
-fun getStatusName(status: String): String {
-    return when (status) {
-        "active" -> "Đang hoạt động"
-        "inactive" -> "Tạm ngừng"
-        "banned" -> "Bị khóa"
-        else -> status
-    }
-}
 

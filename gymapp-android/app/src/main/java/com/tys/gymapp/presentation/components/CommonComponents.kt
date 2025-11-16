@@ -261,7 +261,7 @@ fun ErrorMessage(
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = Icons.Default.Error,
@@ -301,7 +301,7 @@ fun EmptyState(
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = icon,

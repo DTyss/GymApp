@@ -16,6 +16,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.data.remote.dto.User
 import com.tys.gymapp.presentation.components.*
 import com.tys.gymapp.presentation.theme.Spacing
+import com.tys.gymapp.presentation.utils.getRoleName
+import com.tys.gymapp.presentation.utils.getStatusName
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -344,22 +346,4 @@ fun StatusChangeDialog(
     )
 }
 
-fun getRoleName(role: String): String {
-    return when (role) {
-        "member" -> "Hội viên"
-        "trainer" -> "Huấn luyện viên"
-        "admin" -> "Quản trị viên"
-        "receptionist" -> "Lễ tân"
-        else -> role
-    }
-}
-
-fun getStatusName(status: String): String {
-    return when (status) {
-        "active" -> "Đang hoạt động"
-        "inactive" -> "Tạm ngừng"
-        "banned" -> "Bị khóa"
-        else -> status
-    }
-}
 

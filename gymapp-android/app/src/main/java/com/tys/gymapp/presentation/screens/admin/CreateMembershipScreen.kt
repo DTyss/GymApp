@@ -13,8 +13,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.presentation.components.*
-import java.text.NumberFormat
-import java.util.*
+import com.tys.gymapp.presentation.utils.formatPrice
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -251,9 +250,4 @@ fun PlanDetailRow(label: String, value: String) {
             color = MaterialTheme.colorScheme.onSurface
         )
     }
-}
-
-fun formatPrice(price: Double): String {
-    val formatter = NumberFormat.getNumberInstance(Locale("vi", "VN"))
-    return "${formatter.format(price)} VNĐ"
 }

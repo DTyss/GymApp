@@ -19,22 +19,8 @@ class GymApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        @Inject
-        lateinit var notificationRepository: NotificationRepository
-
         // Tạo notification channel cho Android 8.0+
         createNotificationChannel()
-    }
-
-    private fun registerFcmToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val token = task.result
-                viewModelScope.launch {
-                    notificationRepository.registerDevice(token)
-                }
-            }
-        }
     }
 
     /**
