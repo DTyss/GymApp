@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.data.remote.dto.Plan
 import com.tys.gymapp.presentation.components.*
+import com.tys.gymapp.presentation.theme.Spacing
+import com.tys.gymapp.presentation.theme.Elevation
 import java.text.NumberFormat
 import java.util.*
 
@@ -45,7 +47,17 @@ fun PlansScreen(
     ) { paddingValues ->
         when (val state = uiState) {
             is PlansUiState.Loading -> {
-                LoadingIndicator(Modifier.padding(paddingValues))
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(Spacing.screenPadding),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                ) {
+                    items(3) {
+                        ShimmerCard()
+                    }
+                }
             }
             is PlansUiState.Error -> {
                 ErrorMessage(
@@ -56,7 +68,7 @@ fun PlansScreen(
             }
             is PlansUiState.Success -> {
                 if (state.plans.isEmpty()) {
-                    EmptyState(
+                    EnhancedEmptyState(
                         message = "Chưa có gói tập nào",
                         icon = Icons.Default.CardMembership,
                         modifier = Modifier.padding(paddingValues)
@@ -64,30 +76,37 @@ fun PlansScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.padding(paddingValues),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        contentPadding = PaddingValues(Spacing.screenPadding),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.md)
                     ) {
                         // Header text
                         item {
-                            Column {
-                                Text(
-                                    text = "Chọn gói tập phù hợp",
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = "Liên hệ quầy lễ tân hoặc admin để đăng ký gói",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                )
+                            AnimatedVisibilityWithFade(visible = true) {
+                                Column {
+                                    Text(
+                                        text = "Chọn gói tập phù hợp",
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.height(Spacing.xs))
+                                    Text(
+                                        text = "Liên hệ quầy lễ tân hoặc admin để đăng ký gói",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                    )
+                                }
                             }
                         }
 
                         // Plans list
-                        items(state.plans) { plan ->
-                            PlanCard(plan = plan)
+                        items(
+                            items = state.plans,
+                            key = { it.id }
+                        ) { plan ->
+                            AnimatedVisibilityWithFade(visible = true) {
+                                EnhancedPlanCard(plan = plan)
+                            }
                         }
                     }
                 }
@@ -97,123 +116,109 @@ fun PlansScreen(
 }
 
 @Composable
-fun PlanCard(plan: Plan) {
-    Card(
+fun EnhancedPlanCard(plan: Plan) {
+    EnhancedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+        elevation = if (plan.isActive) Elevation.level2 else Elevation.level1
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
+        // Plan name
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Plan name
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = plan.name,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                // Active badge
-                if (plan.isActive) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            text = "Đang bán",
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Price
-            Row(
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Text(
-                    text = formatPrice(plan.price),
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = " VNĐ",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Features
-            PlanFeatureRow(
-                icon = Icons.Default.Event,
-                label = "Thời hạn",
-                value = "${plan.durationDays} ngày"
+            Text(
+                text = plan.name,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            PlanFeatureRow(
-                icon = Icons.Default.FitnessCenter,
-                label = "Số buổi tập",
-                value = "${plan.sessions} buổi"
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            PlanFeatureRow(
-                icon = Icons.Default.TrendingDown,
-                label = "Giá mỗi buổi",
-                value = "${formatPrice(plan.price / plan.sessions)} VNĐ"
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Contact info card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f)
-                )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+            // Active badge
+            if (plan.isActive) {
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = RoundedCornerShape(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(20.dp)
-                    )
                     Text(
-                        text = "Liên hệ quầy lễ tân để đăng ký gói này",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        text = "Đang bán",
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
                     )
                 }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(Spacing.md))
+
+        // Price
+        Row(
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Text(
+                text = formatPrice(plan.price),
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = " VNĐ",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(Spacing.lg))
+
+        // Features
+        PlanFeatureRow(
+            icon = Icons.Default.Event,
+            label = "Thời hạn",
+            value = "${plan.durationDays} ngày"
+        )
+
+        Spacer(modifier = Modifier.height(Spacing.sm))
+
+        PlanFeatureRow(
+            icon = Icons.Default.FitnessCenter,
+            label = "Số buổi tập",
+            value = "${plan.sessions} buổi"
+        )
+
+        Spacer(modifier = Modifier.height(Spacing.sm))
+
+        PlanFeatureRow(
+            icon = Icons.Default.TrendingDown,
+            label = "Giá mỗi buổi",
+            value = "${formatPrice(plan.price / plan.sessions)} VNĐ"
+        )
+
+        Spacer(modifier = Modifier.height(Spacing.lg))
+
+        // Contact info card
+        EnhancedCard(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = Elevation.none
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(Spacing.iconSizeSmall)
+                )
+                Text(
+                    text = "Liên hệ quầy lễ tân để đăng ký gói này",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
             }
         }
     }
@@ -232,12 +237,12 @@ fun PlanFeatureRow(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(Spacing.iconSizeSmall),
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
             )
             Text(

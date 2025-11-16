@@ -4,6 +4,7 @@ import { verifyQr } from "../../libs/crypto";
 import { Prisma } from "@prisma/client";
 import { signQr } from "../../libs/crypto";
 import { AppError } from "../../utils/errors";
+import { parsePaging, toSkipTake } from "../../utils/paging";
 
 // body: { payload: { userId, nonce, exp, sig }, branchId }
 export async function verifyQrAndCheckin(req: Request & { user?: any }, res: Response) {
@@ -65,6 +66,36 @@ export async function newQr(req: Request & { user?: any }, res: Response) {
   const nonce = cryptoRandom();
   const signed = signQr({ userId: uid, nonce, exp });
   res.json(signed);
+}
+
+export async function myCheckins(req: Request & { user?: any }, res: Response) {
+  const userId = BigInt(req.user!.id);
+  const paging = parsePaging(req.query);
+  const { skip, take } = toSkipTake(paging);
+  
+  const { from, to } = req.query;
+  const where: any = { userId };
+  
+  if (from || to) {
+    where.checkedAt = {};
+    if (from) where.checkedAt.gte = new Date(String(from));
+    if (to) where.checkedAt.lte = new Date(String(to));
+  }
+
+  const [items, total] = await Promise.all([
+    prisma.checkin.findMany({
+      where,
+      orderBy: { checkedAt: "desc" },
+      skip,
+      take,
+      include: {
+        branch: true
+      }
+    }),
+    prisma.checkin.count({ where })
+  ]);
+
+  res.json({ items, total, page: paging.page, pageSize: paging.pageSize });
 }
 
 function cryptoRandom(len = 16) {

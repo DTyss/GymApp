@@ -15,6 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.data.remote.dto.ClassItem
 import com.tys.gymapp.presentation.components.*
+import com.tys.gymapp.presentation.theme.Spacing
+import com.tys.gymapp.presentation.theme.Elevation
+import androidx.compose.foundation.lazy.rememberLazyListState
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -27,6 +30,7 @@ fun ClassesScreen(
     val bookingState by viewModel.bookingState.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val listState = rememberLazyListState()
 
     LaunchedEffect(bookingState) {
         when (val state = bookingState) {
@@ -47,43 +51,94 @@ fun ClassesScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Lịch lớp") },
+                actions = {
+                    IconButton(onClick = { viewModel.loadClasses() }) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Làm mới"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
     ) { paddingValues ->
-        when (val state = uiState) {
-            is ClassesUiState.Loading -> {
-                LoadingIndicator(Modifier.padding(paddingValues))
-            }
-            is ClassesUiState.Error -> {
-                ErrorMessage(
-                    message = state.message,
-                    onRetry = { viewModel.loadClasses() },
-                    modifier = Modifier.padding(paddingValues)
-                )
-            }
-            is ClassesUiState.Success -> {
-                if (state.classes.isEmpty()) {
-                    EmptyState(
-                        message = "Chưa có lớp học nào",
-                        icon = Icons.Default.Event,
-                        modifier = Modifier.padding(paddingValues)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when (val state = uiState) {
+                is ClassesUiState.Loading -> {
+                    if (state.classes.isEmpty()) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(Spacing.screenPadding),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                        ) {
+                            items(3) {
+                                ShimmerCard()
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(Spacing.screenPadding),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                        ) {
+                            items(
+                                items = state.classes,
+                                key = { it.id }
+                            ) { classItem ->
+                                AnimatedVisibilityWithFade(visible = true) {
+                                    EnhancedClassCard(
+                                        classItem = classItem,
+                                        onBookClick = { viewModel.bookClass(classItem.id) },
+                                        isBooking = bookingState is BookingState.Loading
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                is ClassesUiState.Error -> {
+                    ErrorMessage(
+                        message = state.message,
+                        onRetry = { viewModel.loadClasses() },
+                        modifier = Modifier.fillMaxSize()
                     )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.padding(paddingValues),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(state.classes) { classItem ->
-                            ClassCard(
-                                classItem = classItem,
-                                onBookClick = { viewModel.bookClass(classItem.id) },
-                                isBooking = bookingState is BookingState.Loading
-                            )
+                }
+                is ClassesUiState.Success -> {
+                    if (state.classes.isEmpty()) {
+                        EnhancedEmptyState(
+                            message = "Chưa có lớp học nào",
+                            icon = Icons.Default.Event,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(Spacing.screenPadding),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                        ) {
+                            items(
+                                items = state.classes,
+                                key = { it.id }
+                            ) { classItem ->
+                                AnimatedVisibilityWithFade(visible = true) {
+                                    EnhancedClassCard(
+                                        classItem = classItem,
+                                        onBookClick = { viewModel.bookClass(classItem.id) },
+                                        isBooking = bookingState is BookingState.Loading
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -93,75 +148,107 @@ fun ClassesScreen(
 }
 
 @Composable
-fun ClassCard(
+fun EnhancedClassCard(
     classItem: ClassItem,
     onBookClick: () -> Unit,
     isBooking: Boolean
 ) {
-    Card(
+    val availabilityRatio = if (classItem.capacity > 0) {
+        classItem.available.toFloat() / classItem.capacity.toFloat()
+    } else 0f
+
+    EnhancedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = Elevation.level1
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Title
+        // Title
+        Text(
+            text = classItem.title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        // Description
+        if (classItem.description != null) {
+            Spacer(modifier = Modifier.height(Spacing.xs))
             Text(
-                text = classItem.title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                text = classItem.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
+        }
 
-            // Description
-            if (classItem.description != null) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = classItem.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-            }
+        Spacer(modifier = Modifier.height(Spacing.sm))
 
-            Spacer(modifier = Modifier.height(12.dp))
+        // Info rows
+        ClassInfoRow(
+            icon = Icons.Default.Person,
+            text = "HLV: ${classItem.trainer.fullName}"
+        )
 
-            // Info rows
-            ClassInfoRow(
-                icon = Icons.Default.Person,
-                text = "HLV: ${classItem.trainer.fullName}"
-            )
+        Spacer(modifier = Modifier.height(Spacing.xs))
 
-            Spacer(modifier = Modifier.height(4.dp))
+        ClassInfoRow(
+            icon = Icons.Default.LocationOn,
+            text = "Chi nhánh: ${classItem.branch.name}"
+        )
 
-            ClassInfoRow(
-                icon = Icons.Default.LocationOn,
-                text = "Chi nhánh: ${classItem.branch.name}"
-            )
+        Spacer(modifier = Modifier.height(Spacing.xs))
 
-            Spacer(modifier = Modifier.height(4.dp))
+        ClassInfoRow(
+            icon = Icons.Default.Schedule,
+            text = formatDateTime(classItem.startTime)
+        )
 
-            ClassInfoRow(
-                icon = Icons.Default.Schedule,
-                text = formatDateTime(classItem.startTime)
-            )
+        Spacer(modifier = Modifier.height(Spacing.xs))
 
-            Spacer(modifier = Modifier.height(4.dp))
-
+        // Availability with progress
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             ClassInfoRow(
                 icon = Icons.Default.Groups,
                 text = "Còn ${classItem.available}/${classItem.capacity} chỗ"
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Book button
-            GymButton(
-                text = if (classItem.available > 0) "Đặt lớp" else "Hết chỗ",
-                onClick = onBookClick,
-                enabled = classItem.available > 0 && !isBooking,
-                loading = isBooking,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Surface(
+                color = when {
+                    availabilityRatio > 0.5f -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    availabilityRatio > 0.2f -> MaterialTheme.colorScheme.warning.copy(alpha = 0.1f)
+                    else -> MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+                },
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = when {
+                        classItem.available == 0 -> "Hết chỗ"
+                        availabilityRatio < 0.2f -> "Sắp hết"
+                        else -> "Còn chỗ"
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = when {
+                        availabilityRatio > 0.5f -> MaterialTheme.colorScheme.primary
+                        availabilityRatio > 0.2f -> MaterialTheme.colorScheme.warning
+                        else -> MaterialTheme.colorScheme.error
+                    }
+                )
+            }
         }
+
+        Spacer(modifier = Modifier.height(Spacing.md))
+
+        // Book button
+        EnhancedGymButton(
+            text = if (classItem.available > 0) "Đặt lớp" else "Hết chỗ",
+            onClick = onBookClick,
+            enabled = classItem.available > 0 && !isBooking,
+            loading = isBooking,
+            variant = if (classItem.available > 0) ButtonVariant.Filled else ButtonVariant.Outlined,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -172,12 +259,12 @@ fun ClassInfoRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(Spacing.iconSizeSmall),
             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
         )
         Text(

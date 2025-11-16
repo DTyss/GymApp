@@ -18,21 +18,50 @@ import com.tys.gymapp.presentation.components.*
 @Composable
 fun CreateEditClassScreen(
     onNavigateBack: () -> Unit,
-    isEditMode: Boolean = false,
     viewModel: CreateEditClassViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val branches by viewModel.branches.collectAsState()
+    val isEditMode = viewModel.editMode
 
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var selectedBranchId by remember { mutableStateOf<String?>(null) }
-    var capacity by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf("") }
-    var startTime by remember { mutableStateOf("") }
-    var endTime by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf(viewModel.title.value) }
+    var description by remember { mutableStateOf(viewModel.description.value) }
+    var selectedBranchId by remember { mutableStateOf<String?>(viewModel.selectedBranchId.value) }
+    var capacity by remember { mutableStateOf(viewModel.capacity.value) }
+    
+    // Parse datetime from ViewModel
+    val startDateTime = viewModel.startDateTime.value
+    val endDateTime = viewModel.endDateTime.value
+    
+    var startDate by remember { 
+        mutableStateOf(
+            if (startDateTime.isNotBlank()) {
+                startDateTime.split("T")[0].split("-").reversed().joinToString("/")
+            } else ""
+        )
+    }
+    var startTime by remember { 
+        mutableStateOf(
+            if (startDateTime.isNotBlank() && "T" in startDateTime) {
+                startDateTime.split("T")[1].substringBefore(":")
+            } else ""
+        )
+    }
+    var endTime by remember { 
+        mutableStateOf(
+            if (endDateTime.isNotBlank() && "T" in endDateTime) {
+                endDateTime.split("T")[1].substringBefore(":")
+            } else ""
+        )
+    }
 
     var showBranchDropdown by remember { mutableStateOf(false) }
+
+    // Sync with ViewModel when it changes
+    LaunchedEffect(viewModel.title.value) { title = viewModel.title.value }
+    LaunchedEffect(viewModel.description.value) { description = viewModel.description.value }
+    LaunchedEffect(viewModel.selectedBranchId.value) { selectedBranchId = viewModel.selectedBranchId.value }
+    LaunchedEffect(viewModel.capacity.value) { capacity = viewModel.capacity.value }
 
     LaunchedEffect(uiState) {
         if (uiState is CreateEditClassUiState.Success) {
@@ -187,14 +216,35 @@ fun CreateEditClassScreen(
             GymButton(
                 text = if (isEditMode) "Lưu thay đổi" else "Tạo lớp",
                 onClick = {
-                    // Format datetime before sending
                     viewModel.title.value = title
                     viewModel.description.value = description
                     viewModel.selectedBranchId.value = selectedBranchId
                     viewModel.capacity.value = capacity
-                    // TODO: Format startDate + startTime → ISO datetime
-                    // TODO: Format startDate + endTime → ISO datetime
-                    viewModel.createClass()
+                    
+                    // Format datetime: combine date and time
+                    val startDateTimeFormatted = if (startDate.isNotBlank() && startTime.isNotBlank()) {
+                        // Convert dd/MM/yyyy to yyyy-MM-dd
+                        val dateParts = startDate.split("/")
+                        if (dateParts.size == 3) {
+                            "${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T${startTime.padStart(5, '0')}:00"
+                        } else ""
+                    } else ""
+                    
+                    val endDateTimeFormatted = if (startDate.isNotBlank() && endTime.isNotBlank()) {
+                        val dateParts = startDate.split("/")
+                        if (dateParts.size == 3) {
+                            "${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T${endTime.padStart(5, '0')}:00"
+                        } else ""
+                    } else ""
+                    
+                    viewModel.startDateTime.value = startDateTimeFormatted
+                    viewModel.endDateTime.value = endDateTimeFormatted
+                    
+                    if (isEditMode) {
+                        viewModel.updateClass()
+                    } else {
+                        viewModel.createClass()
+                    }
                 },
                 loading = uiState is CreateEditClassUiState.Loading,
                 icon = Icons.Default.Save

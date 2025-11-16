@@ -15,6 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.presentation.components.*
+import com.tys.gymapp.presentation.theme.Spacing
+import com.tys.gymapp.presentation.theme.Elevation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,87 +73,104 @@ fun ProfileScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                         .verticalScroll(rememberScrollState())
-                        .padding(24.dp),
+                        .padding(Spacing.lg),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Avatar
-                    Surface(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape),
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = null,
-                                modifier = Modifier.size(60.dp),
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
+                    // Avatar with animation
+                    AnimatedVisibilityWithFade(visible = true) {
+                        Surface(
+                            modifier = Modifier
+                                .size(Spacing.avatarSizeLarge)
+                                .clip(CircleShape),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shadowElevation = Elevation.level2
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(Spacing.xxxl),
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Spacing.md))
 
                     // Name
-                    Text(
-                        text = state.user.fullName,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    AnimatedVisibilityWithFade(visible = true) {
+                        Text(
+                            text = state.user.fullName,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
 
                     // Role
-                    Text(
-                        text = getRoleName(state.user.role),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    AnimatedVisibilityWithFade(visible = true) {
+                        Text(
+                            text = getRoleName(state.user.role),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(Spacing.xl))
 
                     // Profile Info Cards
-                    ProfileInfoCard(
-                        icon = Icons.Default.Email,
-                        label = "Email",
-                        value = state.user.email ?: "Chưa có"
-                    )
+                    AnimatedVisibilityWithFade(visible = true) {
+                        EnhancedProfileInfoCard(
+                            icon = Icons.Default.Email,
+                            label = "Email",
+                            value = state.user.email ?: "Chưa có"
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(Spacing.sm))
 
-                    ProfileInfoCard(
-                        icon = Icons.Default.Phone,
-                        label = "Số điện thoại",
-                        value = state.user.phone ?: "Chưa có"
-                    )
+                    AnimatedVisibilityWithFade(visible = true) {
+                        EnhancedProfileInfoCard(
+                            icon = Icons.Default.Phone,
+                            label = "Số điện thoại",
+                            value = state.user.phone ?: "Chưa có"
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(Spacing.sm))
 
-                    ProfileInfoCard(
-                        icon = Icons.Default.Info,
-                        label = "Trạng thái",
-                        value = getStatusName(state.user.status)
-                    )
+                    AnimatedVisibilityWithFade(visible = true) {
+                        EnhancedProfileInfoCard(
+                            icon = Icons.Default.Info,
+                            label = "Trạng thái",
+                            value = getStatusName(state.user.status)
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(Spacing.sm))
 
-                    ProfileInfoCard(
-                        icon = Icons.Default.CardMembership,
-                        label = "Số gói tập",
-                        value = "${state.user.memberships.size} gói"
-                    )
+                    AnimatedVisibilityWithFade(visible = true) {
+                        EnhancedProfileInfoCard(
+                            icon = Icons.Default.CardMembership,
+                            label = "Số gói tập",
+                            value = "${state.user.memberships.size} gói"
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(Spacing.xl))
 
                     // Logout Button
-                    GymButton(
+                    EnhancedGymButton(
                         text = "Đăng xuất",
                         onClick = { viewModel.logout() },
                         icon = Icons.Default.Logout,
+                        variant = ButtonVariant.Outlined,
+                        containerColor = MaterialTheme.colorScheme.error,
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Spacing.md))
 
                     // Version info
                     Text(
@@ -169,41 +188,36 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfileInfoCard(
+fun EnhancedProfileInfoCard(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     value: String
 ) {
-    Card(
+    EnhancedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+        elevation = Elevation.level1
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Icon
             Surface(
-                modifier = Modifier.size(40.dp),
-                shape = androidx.compose.foundation.shape.CircleShape,
+                modifier = Modifier.size(Spacing.avatarSize),
+                shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(Spacing.iconSize),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Spacing.md))
 
             // Text
             Column {

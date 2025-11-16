@@ -24,6 +24,7 @@ import com.tys.gymapp.presentation.screens.notifications.NotificationsScreen
 import com.tys.gymapp.presentation.screens.plans.PlansScreen
 import com.tys.gymapp.presentation.screens.profile.EditProfileScreen
 import com.tys.gymapp.presentation.screens.profile.ProfileScreen
+import com.tys.gymapp.presentation.screens.admin.*
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 
@@ -162,6 +163,15 @@ fun MainScreen(
                     },
                     onNavigateToManageMemberships = {
                         navController.navigate("admin_manage_memberships")
+                    },
+                    onNavigateToManageUsers = {
+                        navController.navigate("admin_manage_users")
+                    },
+                    onNavigateToManagePlans = {
+                        navController.navigate("admin_manage_plans")
+                    },
+                    onNavigateToManageBranches = {
+                        navController.navigate("admin_manage_branches")
                     }
                 )
             }
@@ -181,14 +191,23 @@ fun MainScreen(
                         navController.navigate("admin_create_class")
                     },
                     onNavigateToEditClass = { classItem ->
-                        // TODO: Pass classItem as JSON or use SavedStateHandle
-                        navController.navigate("admin_create_class")
+                        val classJson = com.tys.gymapp.presentation.utils.NavigationUtils.classToJson(classItem)
+                        navController.navigate("admin_create_class?classJson=${android.net.Uri.encode(classJson)}")
                     }
                 )
             }
 
             // Create/Edit Class
-            composable("admin_create_class") {
+            composable(
+                route = "admin_create_class?classJson={classJson}",
+                arguments = listOf(
+                    navArgument("classJson") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) { backStackEntry ->
+                val classJson = backStackEntry.arguments?.getString("classJson") ?: ""
                 CreateEditClassScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
@@ -222,6 +241,88 @@ fun MainScreen(
                 )
             ) {
                 ExtendMembershipScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // Manage Users
+            composable("admin_manage_users") {
+                ManageUsersScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToUserDetail = { userId ->
+                        navController.navigate("admin_user_detail/$userId")
+                    }
+                )
+            }
+
+            // User Detail
+            composable(
+                route = "admin_user_detail/{userId}",
+                arguments = listOf(
+                    navArgument("userId") { type = NavType.StringType }
+                )
+            ) {
+                UserDetailScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // Manage Plans
+            composable("admin_manage_plans") {
+                ManagePlansScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToCreatePlan = {
+                        navController.navigate("admin_create_plan")
+                    },
+                    onNavigateToEditPlan = { plan ->
+                        val planJson = com.tys.gymapp.presentation.utils.NavigationUtils.planToJson(plan)
+                        navController.navigate("admin_create_plan?planJson=${android.net.Uri.encode(planJson)}")
+                    }
+                )
+            }
+
+            // Create/Edit Plan
+            composable(
+                route = "admin_create_plan?planJson={planJson}",
+                arguments = listOf(
+                    navArgument("planJson") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) { backStackEntry ->
+                val planJson = backStackEntry.arguments?.getString("planJson") ?: ""
+                CreateEditPlanScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // Manage Branches
+            composable("admin_manage_branches") {
+                ManageBranchesScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToCreateBranch = {
+                        navController.navigate("admin_create_branch")
+                    },
+                    onNavigateToEditBranch = { branch ->
+                        val branchJson = com.tys.gymapp.presentation.utils.NavigationUtils.branchToJson(branch)
+                        navController.navigate("admin_create_branch?branchJson=${android.net.Uri.encode(branchJson)}")
+                    }
+                )
+            }
+
+            // Create/Edit Branch
+            composable(
+                route = "admin_create_branch?branchJson={branchJson}",
+                arguments = listOf(
+                    navArgument("branchJson") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) { backStackEntry ->
+                val branchJson = backStackEntry.arguments?.getString("branchJson") ?: ""
+                CreateEditBranchScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

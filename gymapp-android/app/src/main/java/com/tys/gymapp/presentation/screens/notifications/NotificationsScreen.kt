@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.data.remote.dto.Notification
 import com.tys.gymapp.presentation.components.*
+import com.tys.gymapp.presentation.theme.Spacing
+import com.tys.gymapp.presentation.theme.Elevation
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -47,7 +49,17 @@ fun NotificationsScreen(
     ) { paddingValues ->
         when (val state = uiState) {
             is NotificationsUiState.Loading -> {
-                LoadingIndicator(Modifier.padding(paddingValues))
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(Spacing.screenPadding),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                ) {
+                    items(5) {
+                        ShimmerCard()
+                    }
+                }
             }
             is NotificationsUiState.Error -> {
                 ErrorMessage(
@@ -58,7 +70,7 @@ fun NotificationsScreen(
             }
             is NotificationsUiState.Success -> {
                 if (state.notifications.isEmpty()) {
-                    EmptyState(
+                    EnhancedEmptyState(
                         message = "Chưa có thông báo nào",
                         icon = Icons.Default.Notifications,
                         modifier = Modifier.padding(paddingValues)
@@ -66,14 +78,19 @@ fun NotificationsScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.padding(paddingValues),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        contentPadding = PaddingValues(Spacing.screenPadding),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.md)
                     ) {
-                        items(state.notifications) { notification ->
-                            NotificationCard(
-                                notification = notification,
-                                onMarkAsRead = { viewModel.markAsRead(notification.id) }
-                            )
+                        items(
+                            items = state.notifications,
+                            key = { it.id }
+                        ) { notification ->
+                            AnimatedVisibilityWithFade(visible = true) {
+                                EnhancedNotificationCard(
+                                    notification = notification,
+                                    onMarkAsRead = { viewModel.markAsRead(notification.id) }
+                                )
+                            }
                         }
                     }
                 }
@@ -83,60 +100,79 @@ fun NotificationsScreen(
 }
 
 @Composable
-fun NotificationCard(
+fun EnhancedNotificationCard(
     notification: Notification,
     onMarkAsRead: () -> Unit
 ) {
-    Card(
+    EnhancedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (notification.isRead) {
-                MaterialTheme.colorScheme.surface
-            } else {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
-            }
-        ),
-        onClick = if (!notification.isRead) onMarkAsRead else ({})
+        onClick = if (!notification.isRead) onMarkAsRead else null,
+        elevation = if (notification.isRead) Elevation.level1 else Elevation.level2
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Top
         ) {
             // Icon
-            Icon(
-                imageVector = if (notification.isRead) {
-                    Icons.Default.NotificationsNone
+            Surface(
+                modifier = Modifier.size(Spacing.avatarSize),
+                shape = RoundedCornerShape(8.dp),
+                color = if (notification.isRead) {
+                    MaterialTheme.colorScheme.surfaceVariant
                 } else {
-                    Icons.Default.Notifications
-                },
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = if (notification.isRead) {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                } else {
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.primaryContainer
                 }
-            )
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = if (notification.isRead) {
+                            Icons.Default.NotificationsNone
+                        } else {
+                            Icons.Default.Notifications
+                        },
+                        contentDescription = null,
+                        modifier = Modifier.size(Spacing.iconSize),
+                        tint = if (notification.isRead) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        }
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(Spacing.sm))
 
             Column(modifier = Modifier.weight(1f)) {
                 // Title
-                Text(
-                    text = notification.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = if (notification.isRead) {
-                        FontWeight.Normal
-                    } else {
-                        FontWeight.Bold
-                    },
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = notification.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = if (notification.isRead) {
+                            FontWeight.Normal
+                        } else {
+                            FontWeight.Bold
+                        },
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
+                    )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                    // Unread indicator
+                    if (!notification.isRead) {
+                        Surface(
+                            modifier = Modifier.size(8.dp),
+                            shape = androidx.compose.foundation.shape.CircleShape,
+                            color = MaterialTheme.colorScheme.primary
+                        ) {}
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(Spacing.xs))
 
                 // Body
                 Text(
@@ -145,11 +181,12 @@ fun NotificationCard(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.xs))
 
                 // Time
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Schedule,
@@ -157,22 +194,12 @@ fun NotificationCard(
                         modifier = Modifier.size(14.dp),
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = formatNotificationTime(notification.sentAt),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
                 }
-            }
-
-            // Unread indicator
-            if (!notification.isRead) {
-                Surface(
-                    modifier = Modifier.size(8.dp),
-                    shape = androidx.compose.foundation.shape.CircleShape,
-                    color = MaterialTheme.colorScheme.primary
-                ) {}
             }
         }
     }

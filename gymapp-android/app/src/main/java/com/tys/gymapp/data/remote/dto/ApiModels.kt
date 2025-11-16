@@ -227,6 +227,14 @@ data class RegisterDeviceResponse(
     val deviceId: String
 )
 
+data class Device(
+    val id: String,
+    val userId: String,
+    val fcmToken: String,
+    val platform: String,
+    val createdAt: String
+)
+
 /**
  * ===========================================
  * MEMBERSHIP MODELS
@@ -431,4 +439,99 @@ data class UpdateClassRequest(
     val startTime: String? = null,
     val endTime: String? = null,
     val capacity: Int? = null
+)
+
+/**
+ * ===========================================
+ * PLAN MANAGEMENT MODELS
+ * ===========================================
+ */
+
+data class CreatePlanRequest(
+    val name: String,
+    val price: Double,
+    val sessions: Int,
+    val durationDays: Int,
+    val isActive: Boolean = true
+)
+
+data class UpdatePlanRequest(
+    val name: String? = null,
+    val price: Double? = null,
+    val sessions: Int? = null,
+    val durationDays: Int? = null,
+    val isActive: Boolean? = null
+)
+
+/**
+ * ===========================================
+ * BRANCH MANAGEMENT MODELS
+ * ===========================================
+ */
+
+data class CreateBranchRequest(
+    val name: String,
+    val address: String? = null,
+    val isActive: Boolean = true
+)
+
+data class UpdateBranchRequest(
+    val name: String? = null,
+    val address: String? = null,
+    val isActive: Boolean? = null
+)
+
+/**
+ * ===========================================
+ * USER MANAGEMENT MODELS
+ * ===========================================
+ */
+
+data class User(
+    val id: String,
+    val email: String?,
+    val phone: String?,
+    val fullName: String,
+    val role: String,
+    val status: String,
+    val createdAt: String,
+    val _count: UserCount? = null
+)
+
+data class UserCount(
+    val memberships: Int,
+    val bookings: Int,
+    val checkins: Int,
+    val classesTaught: Int? = null
+)
+
+data class UserDetail(
+    val id: String,
+    val email: String?,
+    val phone: String?,
+    val fullName: String,
+    val role: String,
+    val status: String,
+    val createdAt: String,
+    val updatedAt: String,
+    val memberships: List<MembershipLite>,
+    val _count: UserCount
+)
+
+data class PaginatedUsers(
+    val items: List<User>,
+    val total: Int,
+    val page: Int,
+    val pageSize: Int
+)
+
+data class UpdateUserRequest(
+    val fullName: String? = null,
+    val email: String? = null,
+    val phone: String? = null,
+    val role: String? = null
+)
+
+data class UpdateStatusRequest(
+    val status: String  // "active" | "inactive" | "banned"
 )

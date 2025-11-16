@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.presentation.components.*
+import com.tys.gymapp.presentation.theme.Spacing
 import java.text.NumberFormat
 import java.util.*
 
@@ -65,149 +66,88 @@ fun DashboardScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                         .verticalScroll(rememberScrollState())
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(Spacing.md),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
                 ) {
                     // Header
                     Text(
-                        text = "Tổng quan hệ thống",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
+                        text = "Tổng quan",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    // Users Stats
-                    StatCard(
-                        title = "Người dùng",
-                        icon = Icons.Default.People,
-                        color = MaterialTheme.colorScheme.primary
+                    // Stats Grid
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
                     ) {
-                        StatRow("Tổng số", state.stats.users.total.toString())
-                        StatRow("Hội viên", state.stats.users.members.toString())
-                        StatRow("Đang hoạt động", state.stats.users.activeMembers.toString())
-                    }
-
-                    // Classes Stats
-                    StatCard(
-                        title = "Lớp học",
-                        icon = Icons.Default.Class,
-                        color = MaterialTheme.colorScheme.secondary
-                    ) {
-                        StatRow("Tổng số lớp", state.stats.classes.total.toString())
-                        StatRow("Lớp hôm nay", state.stats.classes.today.toString())
-                    }
-
-                    // Check-ins Stats
-                    StatCard(
-                        title = "Check-in",
-                        icon = Icons.Default.CheckCircle,
-                        color = MaterialTheme.colorScheme.tertiary
-                    ) {
-                        StatRow("Tổng số", state.stats.checkins.total.toString())
-                        StatRow("Hôm nay", state.stats.checkins.today.toString())
-                        StatRow("Tháng này", state.stats.checkins.thisMonth.toString())
+                        AdminStatCard(
+                            title = "Người dùng",
+                            value = state.stats.users.total.toString(),
+                            icon = Icons.Default.People,
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        AdminStatCard(
+                            title = "Hội viên",
+                            value = state.stats.users.members.toString(),
+                            icon = Icons.Default.Person,
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.colorScheme.secondary
+                        )
                     }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
                     ) {
-                        // Bookings
-                        StatCard(
-                            title = "Bookings",
-                            icon = Icons.Default.BookOnline,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            StatRow("Tổng số", state.stats.bookings.total.toString())
-                        }
-
-                        // Memberships
-                        StatCard(
-                            title = "Memberships",
-                            icon = Icons.Default.CardMembership,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            StatRow("Đang active", state.stats.memberships.active.toString())
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun StatCard(
-    title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    color: androidx.compose.ui.graphics.Color,
-    modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = color.copy(alpha = 0.1f),
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = color,
-                            modifier = Modifier.size(28.dp)
+                        AdminStatCard(
+                            title = "Lớp học",
+                            value = state.stats.classes.total.toString(),
+                            icon = Icons.Default.Class,
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                        AdminStatCard(
+                            title = "Hôm nay",
+                            value = state.stats.classes.today.toString(),
+                            icon = Icons.Default.Event,
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
+
+                    AdminSectionDivider("Check-in & Bookings")
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+                    ) {
+                        AdminStatCard(
+                            title = "Check-in",
+                            value = state.stats.checkins.today.toString(),
+                            icon = Icons.Default.CheckCircle,
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        AdminStatCard(
+                            title = "Bookings",
+                            value = state.stats.bookings.total.toString(),
+                            icon = Icons.Default.BookOnline,
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+
+                    AdminStatCard(
+                        title = "Memberships Active",
+                        value = state.stats.memberships.active.toString(),
+                        icon = Icons.Default.CardMembership,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
                 }
-
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            content()
         }
-    }
-}
-
-@Composable
-fun StatRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }

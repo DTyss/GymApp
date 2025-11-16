@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.data.remote.dto.Checkin
 import com.tys.gymapp.presentation.components.*
+import com.tys.gymapp.presentation.theme.Spacing
+import com.tys.gymapp.presentation.theme.Elevation
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -45,7 +47,17 @@ fun CheckinHistoryScreen(
     ) { paddingValues ->
         when (val state = uiState) {
             is CheckinHistoryUiState.Loading -> {
-                LoadingIndicator(Modifier.padding(paddingValues))
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(Spacing.screenPadding),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                ) {
+                    items(5) {
+                        ShimmerCard()
+                    }
+                }
             }
             is CheckinHistoryUiState.Error -> {
                 ErrorMessage(
@@ -56,7 +68,7 @@ fun CheckinHistoryScreen(
             }
             is CheckinHistoryUiState.Success -> {
                 if (state.checkins.isEmpty()) {
-                    EmptyState(
+                    EnhancedEmptyState(
                         message = "Chưa có lịch sử check-in",
                         icon = Icons.Default.History,
                         modifier = Modifier.padding(paddingValues)
@@ -64,17 +76,24 @@ fun CheckinHistoryScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.padding(paddingValues),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        contentPadding = PaddingValues(Spacing.screenPadding),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.md)
                     ) {
                         // Summary card
                         item {
-                            CheckinSummaryCard(totalCheckins = state.checkins.size)
+                            AnimatedVisibilityWithFade(visible = true) {
+                                EnhancedCheckinSummaryCard(totalCheckins = state.checkins.size)
+                            }
                         }
 
-                        // Checkin items
-                        items(state.checkins) { checkin ->
-                            CheckinHistoryCard(checkin = checkin)
+                        // Checkin items with timeline
+                        items(
+                            items = state.checkins,
+                            key = { it.id }
+                        ) { checkin ->
+                            AnimatedVisibilityWithFade(visible = true) {
+                                EnhancedCheckinHistoryCard(checkin = checkin)
+                            }
                         }
                     }
                 }
@@ -84,18 +103,12 @@ fun CheckinHistoryScreen(
 }
 
 @Composable
-fun CheckinSummaryCard(totalCheckins: Int) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
+fun EnhancedCheckinSummaryCard(totalCheckins: Int) {
+    GradientCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -103,41 +116,38 @@ fun CheckinSummaryCard(totalCheckins: Int) {
                 Text(
                     text = "Tổng số lần check-in",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
                 )
                 Text(
                     text = "$totalCheckins lần",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
             Icon(
                 imageVector = Icons.Default.CheckCircle,
                 contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.primary
+                modifier = Modifier.size(Spacing.xxxl),
+                tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
             )
         }
     }
 }
 
 @Composable
-fun CheckinHistoryCard(checkin: Checkin) {
-    Card(
+fun EnhancedCheckinHistoryCard(checkin: Checkin) {
+    EnhancedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(2.dp)
+        elevation = Elevation.level1
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon
+            // Icon with status
             Surface(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(Spacing.avatarSize),
                 shape = RoundedCornerShape(8.dp),
                 color = if (checkin.status == "success") {
                     MaterialTheme.colorScheme.primaryContainer
@@ -153,6 +163,7 @@ fun CheckinHistoryCard(checkin: Checkin) {
                             Icons.Default.Error
                         },
                         contentDescription = null,
+                        modifier = Modifier.size(Spacing.iconSize),
                         tint = if (checkin.status == "success") {
                             MaterialTheme.colorScheme.primary
                         } else {
@@ -162,7 +173,7 @@ fun CheckinHistoryCard(checkin: Checkin) {
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Spacing.md))
 
             // Info
             Column(modifier = Modifier.weight(1f)) {
@@ -173,18 +184,18 @@ fun CheckinHistoryCard(checkin: Checkin) {
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Spacing.xs))
 
                 // Branch
                 if (checkin.branch != null) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
                     ) {
                         Icon(
                             imageVector = Icons.Default.LocationOn,
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(Spacing.iconSizeSmall),
                             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
                         Text(
@@ -195,12 +206,12 @@ fun CheckinHistoryCard(checkin: Checkin) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Spacing.xs))
 
                 // Method
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
                 ) {
                     Icon(
                         imageVector = if (checkin.method == "qr") {
@@ -209,7 +220,7 @@ fun CheckinHistoryCard(checkin: Checkin) {
                             Icons.Default.TouchApp
                         },
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(Spacing.iconSizeSmall),
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                     Text(

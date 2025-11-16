@@ -32,9 +32,24 @@ val CardBackground = Color(0xFFFFFFFF)
 val CardBorder = Color(0xFFE9ECEF)
 val Disabled = Color(0xFFADB5BD)
 
-// Gradient Colors
+// Gradient Colors - Primary Gradient
 val GradientStart = Color(0xFFE63946)
 val GradientEnd = Color(0xFFD62839)
+
+// Additional Gradients
+val GradientSecondaryStart = Color(0xFF457B9D)
+val GradientSecondaryEnd = Color(0xFF1D3557)
+val GradientSuccessStart = Color(0xFF06D6A0)
+val GradientSuccessEnd = Color(0xFF04B88A)
+val GradientWarningStart = Color(0xFFFFB703)
+val GradientWarningEnd = Color(0xFFFF9500)
+
+// Accent Colors for Actions
+val AccentPrimary = Color(0xFFE63946)
+val AccentSecondary = Color(0xFF457B9D)
+val AccentSuccess = Color(0xFF06D6A0)
+val AccentWarning = Color(0xFFFFB703)
+val AccentError = Color(0xFFE63946)
 
 // ==========================================
 // DARK MODE COLORS
@@ -68,3 +83,18 @@ val InfoDark = Color(0xFF5A9FD4)
 // Gradient for Dark Mode
 val GradientStartDark = Color(0xFFFF5A6A)
 val GradientEndDark = Color(0xFFE63946)
+
+// Additional Gradients for Dark Mode
+val GradientSecondaryStartDark = Color(0xFF5A9FD4)
+val GradientSecondaryEndDark = Color(0xFF2D4A6B)
+val GradientSuccessStartDark = Color(0xFF10D6A0)
+val GradientSuccessEndDark = Color(0xFF08B88A)
+val GradientWarningStartDark = Color(0xFFFFBF1A)
+val GradientWarningEndDark = Color(0xFFFFA500)
+
+// Accent Colors for Dark Mode
+val AccentPrimaryDark = Color(0xFFFF5A6A)
+val AccentSecondaryDark = Color(0xFF5A9FD4)
+val AccentSuccessDark = Color(0xFF10D6A0)
+val AccentWarningDark = Color(0xFFFFBF1A)
+val AccentErrorDark = Color(0xFFFF5A6A)

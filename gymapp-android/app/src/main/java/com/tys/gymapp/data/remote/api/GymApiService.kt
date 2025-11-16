@@ -131,6 +131,9 @@ interface GymApiService {
     @POST("devices")
     suspend fun registerDevice(@Body request: RegisterDeviceRequest): Response<RegisterDeviceResponse>
 
+    @GET("devices/my")
+    suspend fun getMyDevices(): Response<List<Device>>
+
     // ==================== MEMBERSHIPS ====================
 
     @GET("memberships/my/list")
@@ -202,6 +205,30 @@ interface GymApiService {
     @DELETE("classes/{id}")
     suspend fun deleteClass(@Path("id") id: String): Response<Map<String, Any>>
 
+    // ==================== USER MANAGEMENT ====================
 
+    @GET("users")
+    suspend fun getUsers(
+        @Query("role") role: String? = null,
+        @Query("status") status: String? = null,
+        @Query("search") search: String? = null,
+        @Query("page") page: Int = 1,
+        @Query("pageSize") pageSize: Int = 20
+    ): Response<PaginatedUsers>
+
+    @GET("users/{id}")
+    suspend fun getUserById(@Path("id") id: String): Response<UserDetail>
+
+    @PUT("users/{id}")
+    suspend fun updateUser(
+        @Path("id") id: String,
+        @Body request: UpdateUserRequest
+    ): Response<User>
+
+    @PUT("users/{id}/status")
+    suspend fun updateUserStatus(
+        @Path("id") id: String,
+        @Body request: UpdateStatusRequest
+    ): Response<User>
 
 }

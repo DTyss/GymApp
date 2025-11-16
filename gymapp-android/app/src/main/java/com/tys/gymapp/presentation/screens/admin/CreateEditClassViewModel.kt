@@ -7,6 +7,7 @@ import com.tys.gymapp.data.remote.dto.*
 import com.tys.gymapp.data.repository.ClassRepository
 import com.tys.gymapp.data.repository.PlanBranchRepository
 import com.tys.gymapp.domain.util.Resource
+import com.tys.gymapp.presentation.utils.NavigationUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +24,9 @@ class CreateEditClassViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val classJson: String? = savedStateHandle["classJson"]
-    private val editMode = classJson != null
+    private val classItem: ClassItem? = classJson?.let { NavigationUtils.jsonToClass(it) }
+    val editMode = classItem != null
+    val classId: String? = classItem?.id
 
     private val _uiState = MutableStateFlow<CreateEditClassUiState>(CreateEditClassUiState.Idle)
     val uiState = _uiState.asStateFlow()
@@ -32,18 +35,25 @@ class CreateEditClassViewModel @Inject constructor(
     val branches = _branches.asStateFlow()
 
     // Form state
-    val title = MutableStateFlow("")
-    val description = MutableStateFlow("")
-    val selectedBranchId = MutableStateFlow<String?>(null)
-    val trainerId = MutableStateFlow("")  // Current user if trainer
-    val startDateTime = MutableStateFlow("")
-    val endDateTime = MutableStateFlow("")
-    val capacity = MutableStateFlow("")
+    val title = MutableStateFlow(classItem?.title ?: "")
+    val description = MutableStateFlow(classItem?.description ?: "")
+    val selectedBranchId = MutableStateFlow<String?>(classItem?.branch?.id)
+    val trainerId = MutableStateFlow(classItem?.trainer?.id ?: "")  // Current user if trainer
+    val startDateTime = MutableStateFlow(classItem?.startTime?.let { formatDateTimeForInput(it) } ?: "")
+    val endDateTime = MutableStateFlow(classItem?.endTime?.let { formatDateTimeForInput(it) } ?: "")
+    val capacity = MutableStateFlow(classItem?.capacity?.toString() ?: "")
 
     init {
         loadBranches()
-        // TODO: Load trainers list for dropdown
-        // TODO: Parse classJson if edit mode and populate fields
+    }
+
+    private fun formatDateTimeForInput(isoString: String): String {
+        return try {
+            val dateTime = LocalDateTime.parse(isoString.replace("Z", ""))
+            dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+        } catch (e: Exception) {
+            isoString
+        }
     }
 
     private fun loadBranches() {
@@ -88,13 +98,22 @@ class CreateEditClassViewModel @Inject constructor(
                 return@launch
             }
 
+            // Format datetime to ISO format
+            val startTime = formatToISO(startDateTime.value)
+            val endTime = formatToISO(endDateTime.value)
+
+            if (startTime == null || endTime == null) {
+                _uiState.value = CreateEditClassUiState.Error("Định dạng thời gian không hợp lệ")
+                return@launch
+            }
+
             val request = CreateClassRequest(
                 title = title.value,
                 description = description.value.ifBlank { null },
                 trainerId = trainerId.value,
                 branchId = selectedBranchId.value!!,
-                startTime = startDateTime.value,
-                endTime = endDateTime.value,
+                startTime = startTime,
+                endTime = endTime,
                 capacity = cap
             )
 
@@ -109,6 +128,51 @@ class CreateEditClassViewModel @Inject constructor(
                 }
                 else -> {}
             }
+        }
+    }
+
+    fun updateClass() {
+        viewModelScope.launch {
+            if (classId == null) {
+                _uiState.value = CreateEditClassUiState.Error("Class ID không hợp lệ")
+                return@launch
+            }
+
+            _uiState.value = CreateEditClassUiState.Loading
+
+            val startTime = startDateTime.value.takeIf { it.isNotBlank() }?.let { formatToISO(it) }
+            val endTime = endDateTime.value.takeIf { it.isNotBlank() }?.let { formatToISO(it) }
+
+            val request = UpdateClassRequest(
+                title = title.value.takeIf { it.isNotBlank() },
+                description = description.value.takeIf { it.isNotBlank() },
+                trainerId = trainerId.value.takeIf { it.isNotBlank() },
+                branchId = selectedBranchId.value,
+                startTime = startTime,
+                endTime = endTime,
+                capacity = capacity.value.toIntOrNull()
+            )
+
+            when (val result = classRepository.updateClass(classId, request)) {
+                is Resource.Success -> {
+                    _uiState.value = CreateEditClassUiState.Success
+                }
+                is Resource.Error -> {
+                    _uiState.value = CreateEditClassUiState.Error(
+                        result.message ?: "Cập nhật thất bại"
+                    )
+                }
+                else -> {}
+            }
+        }
+    }
+
+    private fun formatToISO(dateTimeString: String): String? {
+        return try {
+            val dateTime = LocalDateTime.parse(dateTimeString)
+            dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "Z"
+        } catch (e: Exception) {
+            null
         }
     }
 

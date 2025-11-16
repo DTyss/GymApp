@@ -4,7 +4,10 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import com.google.firebase.messaging.FirebaseMessaging
+import com.tys.gymapp.data.repository.NotificationRepository
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 /**
  * Application class - Entry point của app

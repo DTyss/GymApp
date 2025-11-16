@@ -15,6 +15,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.presentation.components.*
+import com.tys.gymapp.presentation.theme.Spacing
+import com.tys.gymapp.presentation.theme.Elevation
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,6 +31,20 @@ fun CheckinScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val qrBitmap by viewModel.qrBitmap.collectAsState()
+    
+    // Countdown timer state
+    var remainingSeconds by remember { mutableStateOf(0L) }
+    
+    LaunchedEffect(uiState) {
+        if (uiState is CheckinUiState.Success) {
+            val state = uiState as CheckinUiState.Success
+            while (true) {
+                remainingSeconds = getRemainingSeconds(state.qrPayload.exp)
+                if (remainingSeconds <= 0) break
+                kotlinx.coroutines.delay(1000)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -60,28 +81,27 @@ fun CheckinScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(24.dp),
+                        .padding(Spacing.lg),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    // QR Card
-                    Card(
+                    // QR Card with animated border
+                    EnhancedCard(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        elevation = CardDefaults.cardElevation(8.dp)
+                        elevation = Elevation.level3
                     ) {
                         Column(
-                            modifier = Modifier.padding(24.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
                                 imageVector = Icons.Default.QrCode2,
                                 contentDescription = null,
-                                modifier = Modifier.size(48.dp),
+                                modifier = Modifier.size(Spacing.xxxl),
                                 tint = MaterialTheme.colorScheme.primary
                             )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(Spacing.md))
 
                             Text(
                                 text = "Mã QR Check-in",
@@ -90,7 +110,7 @@ fun CheckinScreen(
                                 color = MaterialTheme.colorScheme.onSurface
                             )
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(Spacing.xs))
 
                             Text(
                                 text = "Đưa mã này cho nhân viên quầy để check-in",
@@ -99,77 +119,71 @@ fun CheckinScreen(
                                 textAlign = TextAlign.Center
                             )
 
-                            Spacer(modifier = Modifier.height(24.dp))
+                            Spacer(modifier = Modifier.height(Spacing.lg))
 
-                            // QR Code Image
+                            // QR Code Image with animated border
                             qrBitmap?.let { bitmap ->
-                                Surface(
-                                    modifier = Modifier.size(280.dp),
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = MaterialTheme.colorScheme.surface
-                                ) {
-                                    Image(
-                                        bitmap = bitmap.asImageBitmap(),
-                                        contentDescription = "QR Code",
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(8.dp)
-                                    )
-                                }
+                                AnimatedQrCode(
+                                    bitmap = bitmap,
+                                    remainingSeconds = remainingSeconds
+                                )
                             }
 
-                            Spacer(modifier = Modifier.height(24.dp))
+                            Spacer(modifier = Modifier.height(Spacing.lg))
 
-                            // Timer
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Timer,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "Mã tự động làm mới sau ${getRemainingSeconds(state.qrPayload.exp)}s",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
+                            // Timer with pulse animation
+                            PulseAnimation {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Timer,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(Spacing.iconSizeSmall),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.width(Spacing.xs))
+                                    Text(
+                                        text = "Mã tự động làm mới sau ${remainingSeconds}s",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(Spacing.lg))
 
                     // Refresh Button
-                    GymOutlinedButton(
+                    EnhancedGymButton(
                         text = "Làm mới mã",
                         onClick = { viewModel.generateQr() },
                         icon = Icons.Default.Refresh,
+                        variant = ButtonVariant.Outlined,
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Spacing.md))
 
                     // Info card
-                    Card(
+                    EnhancedCard(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                        )
+                        elevation = Elevation.none
                     ) {
                         Row(
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Info,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(Spacing.iconSize)
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(Spacing.sm))
                             Text(
                                 text = "Mỗi lần check-in sẽ trừ 1 buổi tập trong gói của bạn",
                                 style = MaterialTheme.typography.bodySmall,
@@ -179,6 +193,54 @@ fun CheckinScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun AnimatedQrCode(
+    bitmap: android.graphics.Bitmap,
+    remainingSeconds: Long
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "qr_border")
+    val borderAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "border_alpha"
+    )
+
+    Box(
+        modifier = Modifier.size(280.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        // Animated border
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .border(
+                    width = 3.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = borderAlpha),
+                            MaterialTheme.colorScheme.secondary.copy(alpha = borderAlpha)
+                        )
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ),
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "QR Code",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(Spacing.xs)
+            )
         }
     }
 }

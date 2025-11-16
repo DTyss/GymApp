@@ -13,6 +13,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tys.gymapp.presentation.components.*
+import com.tys.gymapp.presentation.theme.Spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,20 +88,22 @@ fun EditProfileScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                         .verticalScroll(rememberScrollState())
-                        .padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(Spacing.lg),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
                 ) {
                     // Info text
-                    Text(
-                        text = "Cập nhật thông tin cá nhân của bạn",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
+                    AnimatedVisibilityWithFade(visible = true) {
+                        Text(
+                            text = "Cập nhật thông tin cá nhân của bạn",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(Spacing.xs))
 
                     // Full Name
-                    GymTextField(
+                    EnhancedTextField(
                         value = fullName,
                         onValueChange = { fullName = it },
                         label = "Họ và tên",
@@ -110,7 +113,7 @@ fun EditProfileScreen(
                     )
 
                     // Email
-                    GymTextField(
+                    EnhancedTextField(
                         value = email,
                         onValueChange = { email = it },
                         label = "Email",
@@ -121,7 +124,7 @@ fun EditProfileScreen(
                     )
 
                     // Phone
-                    GymTextField(
+                    EnhancedTextField(
                         value = phone,
                         onValueChange = { phone = it },
                         label = "Số điện thoại",
@@ -131,10 +134,10 @@ fun EditProfileScreen(
                         imeAction = ImeAction.Done
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(Spacing.xs))
 
                     // Save Button
-                    GymButton(
+                    EnhancedGymButton(
                         text = "Lưu thay đổi",
                         onClick = {
                             viewModel.updateProfile(
@@ -149,10 +152,11 @@ fun EditProfileScreen(
                     )
 
                     // Cancel Button
-                    GymOutlinedButton(
+                    EnhancedGymButton(
                         text = "Hủy",
                         onClick = onNavigateBack,
                         enabled = updateState !is UpdateState.Loading,
+                        variant = ButtonVariant.Outlined,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

@@ -23,6 +23,8 @@ import com.tys.gymapp.data.remote.dto.Membership
 import com.tys.gymapp.presentation.components.*
 import com.tys.gymapp.presentation.theme.GradientEnd
 import com.tys.gymapp.presentation.theme.GradientStart
+import com.tys.gymapp.presentation.theme.Spacing
+import com.tys.gymapp.presentation.theme.Elevation
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import android.Manifest
@@ -73,7 +75,17 @@ fun HomeScreen(
     ) { paddingValues ->
         when (val state = uiState) {
             is HomeUiState.Loading -> {
-                LoadingIndicator(modifier = Modifier.padding(paddingValues))
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(Spacing.screenPadding),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                ) {
+                    items(3) {
+                        ShimmerCard()
+                    }
+                }
             }
             is HomeUiState.Error -> {
                 ErrorMessage(
@@ -87,19 +99,23 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    contentPadding = PaddingValues(Spacing.screenPadding),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
                 ) {
                     // Welcome Card
                     item {
-                        WelcomeCard(userName = state.user.fullName)
+                        AnimatedVisibilityWithFade(visible = true) {
+                            WelcomeCard(userName = state.user.fullName)
+                        }
                     }
 
                     // XEM GÓI TẬP
                     item {
-                        QuickActionCard(
-                            onViewPlans = onNavigateToPlans
-                        )
+                        AnimatedVisibilityWithFade(visible = true) {
+                            QuickActionCard(
+                                onViewPlans = onNavigateToPlans
+                            )
+                        }
                     }
 
                     // Active Memberships
@@ -114,14 +130,21 @@ fun HomeScreen(
                     val activeMemberships = state.memberships.filter { it.status == "active" }
                     if (activeMemberships.isEmpty()) {
                         item {
-                            EmptyState(
+                            EnhancedEmptyState(
                                 message = "Bạn chưa có gói tập nào",
-                                icon = Icons.Default.CardMembership
+                                icon = Icons.Default.CardMembership,
+                                actionText = "Xem gói tập",
+                                onAction = onNavigateToPlans
                             )
                         }
                     } else {
-                        items(activeMemberships) { membership ->
-                            MembershipCard(membership = membership)
+                        items(
+                            items = activeMemberships,
+                            key = { it.id }
+                        ) { membership ->
+                            AnimatedVisibilityWithFade(visible = true) {
+                                EnhancedMembershipCard(membership = membership)
+                            }
                         }
                     }
                 }
@@ -177,18 +200,13 @@ fun WelcomeCard(userName: String) {
 
 @Composable
 fun QuickActionCard(onViewPlans: () -> Unit) {
-    Card(
+    EnhancedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
-        ),
-        onClick = onViewPlans
+        onClick = onViewPlans,
+        elevation = Elevation.level1
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -197,93 +215,103 @@ fun QuickActionCard(onViewPlans: () -> Unit) {
                     text = "Khám phá các gói tập",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Spacing.xs))
                 Text(
                     text = "Xem các gói tập phù hợp với bạn",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
             }
 
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(32.dp)
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(Spacing.iconSizeLarge)
             )
         }
     }
 }
 
 @Composable
-fun MembershipCard(membership: Membership) {
-    Card(
+fun EnhancedMembershipCard(membership: Membership) {
+    val totalSessions = membership.plan.sessions
+    val remainingSessions = membership.remainingSessions
+    val progress = if (totalSessions > 0) {
+        (totalSessions - remainingSessions).toFloat() / totalSessions.toFloat()
+    } else 0f
+
+    EnhancedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = Elevation.level1
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+        // Plan Name
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Plan Name
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Text(
+                text = membership.plan.name,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            // Status Badge
+            Surface(
+                color = when (membership.status) {
+                    "active" -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    else -> MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+                },
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    text = membership.plan.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                // Status Badge
-                Surface(
-                    color = when (membership.status) {
-                        "active" -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                        else -> MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+                    text = when (membership.status) {
+                        "active" -> "Đang hoạt động"
+                        "expired" -> "Hết hạn"
+                        "paused" -> "Tạm dừng"
+                        else -> membership.status
                     },
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = when (membership.status) {
-                            "active" -> "Đang hoạt động"
-                            "expired" -> "Hết hạn"
-                            "paused" -> "Tạm dừng"
-                            else -> membership.status
-                        },
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = when (membership.status) {
-                            "active" -> MaterialTheme.colorScheme.primary
-                            else -> MaterialTheme.colorScheme.error
-                        }
-                    )
-                }
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = when (membership.status) {
+                        "active" -> MaterialTheme.colorScheme.primary
+                        else -> MaterialTheme.colorScheme.error
+                    }
+                )
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Info Rows
-            MembershipInfoRow(
-                icon = Icons.Default.Event,
-                label = "Hạn sử dụng",
-                value = formatDate(membership.endDate)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            MembershipInfoRow(
-                icon = Icons.Default.Loop,
-                label = "Số buổi còn lại",
-                value = "${membership.remainingSessions} buổi"
-            )
         }
+
+        Spacer(modifier = Modifier.height(Spacing.sm))
+
+        // Progress Indicator
+        if (membership.status == "active" && totalSessions > 0) {
+            ProgressCard(
+                title = "Tiến độ sử dụng",
+                progress = progress,
+                subtitle = "Đã dùng ${totalSessions - remainingSessions}/$totalSessions buổi",
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(Spacing.sm))
+        }
+
+        // Info Rows
+        MembershipInfoRow(
+            icon = Icons.Default.Event,
+            label = "Hạn sử dụng",
+            value = formatDate(membership.endDate)
+        )
+
+        Spacer(modifier = Modifier.height(Spacing.xs))
+
+        MembershipInfoRow(
+            icon = Icons.Default.Loop,
+            label = "Số buổi còn lại",
+            value = "$remainingSessions buổi"
+        )
     }
 }
 
@@ -295,12 +323,12 @@ fun MembershipInfoRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(Spacing.iconSizeSmall),
             tint = MaterialTheme.colorScheme.primary
         )
         Text(
