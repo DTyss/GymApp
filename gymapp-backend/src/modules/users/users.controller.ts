@@ -2,13 +2,13 @@ import { Request, Response } from "express";
 import { prisma } from "../../libs/prisma";
 import { parsePaging, toSkipTake } from "../../utils/paging";
 import { UpdateUserDto, UpdateSelfDto, UpdateStatusDto } from "./users.dto";
-import { AppError } from "../../utils/errors";
+import { AppError, asyncHandler } from "../../utils/errors";
 
 /**
  * GET /users - Lấy danh sách users (Admin)
  * Query: role, status, search, page, pageSize
  */
-export async function list(req: Request, res: Response) {
+export const list = asyncHandler(async (req: Request, res: Response) => {
   const { role, status, search } = req.query;
   const paging = parsePaging(req.query);
   const { skip, take } = toSkipTake(paging);
@@ -59,12 +59,12 @@ export async function list(req: Request, res: Response) {
   ]);
 
   res.json({ items, total, page: paging.page, pageSize: paging.pageSize });
-}
+});
 
 /**
  * GET /users/:id - Lấy chi tiết user (Admin)
  */
-export async function getById(req: Request, res: Response) {
+export const getById = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const user = await prisma.user.findUnique({
@@ -99,13 +99,13 @@ export async function getById(req: Request, res: Response) {
   }
 
   res.json(user);
-}
+});
 
 /**
  * PUT /users/:id - Cập nhật thông tin user (Admin)
  * Body: { fullName?, email?, phone?, role? }
  */
-export async function update(req: Request, res: Response) {
+export const update = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const parse = UpdateUserDto.safeParse(req.body);
@@ -154,13 +154,13 @@ export async function update(req: Request, res: Response) {
   });
 
   res.json(updated);
-}
+});
 
 /**
  * PUT /users/:id/status - Cập nhật trạng thái user (Admin)
  * Body: { status: "active" | "inactive" | "banned" }
  */
-export async function updateStatus(req: Request, res: Response) {
+export const updateStatus = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const parse = UpdateStatusDto.safeParse(req.body);
@@ -192,13 +192,13 @@ export async function updateStatus(req: Request, res: Response) {
   });
 
   res.json(updated);
-}
+});
 
 /**
  * PUT /users/me/profile - User tự cập nhật thông tin của mình
  * Body: { fullName?, email?, phone? }
  */
-export async function updateSelf(req: Request & { user?: any }, res: Response) {
+export const updateSelf = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const id = BigInt(req.user!.id);
 
   const parse = UpdateSelfDto.safeParse(req.body);
@@ -247,4 +247,4 @@ export async function updateSelf(req: Request & { user?: any }, res: Response) {
   });
 
   res.json(updated);
-}
+});

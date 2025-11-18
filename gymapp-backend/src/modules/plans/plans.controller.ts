@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { prisma } from "../../libs/prisma";
 import { CreatePlanDto, UpdatePlanDto } from "./plans.dto";
-import { AppError } from "../../utils/errors";
+import { AppError, asyncHandler } from "../../utils/errors";
 
 /**
  * GET /plans - Lấy danh sách tất cả gói tập
  */
-export async function list(req: Request, res: Response) {
+export const list = asyncHandler(async (req: Request, res: Response) => {
   const { active } = req.query;
   
   const where: any = {};
@@ -32,12 +32,12 @@ export async function list(req: Request, res: Response) {
   });
 
   res.json(plans);
-}
+});
 
 /**
  * GET /plans/:id - Lấy chi tiết 1 gói tập
  */
-export async function getById(req: Request, res: Response) {
+export const getById = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
   
   const plan = await prisma.plan.findUnique({
@@ -54,12 +54,12 @@ export async function getById(req: Request, res: Response) {
   }
 
   res.json(plan);
-}
+});
 
 /**
  * POST /plans - Tạo gói tập mới (Admin only)
  */
-export async function create(req: Request, res: Response) {
+export const create = asyncHandler(async (req: Request, res: Response) => {
   const parse = CreatePlanDto.safeParse(req.body);
   if (!parse.success) {
     return res.status(400).json({
@@ -89,12 +89,12 @@ export async function create(req: Request, res: Response) {
   });
 
   res.status(201).json(plan);
-}
+});
 
 /**
  * PUT /plans/:id - Cập nhật gói tập (Admin only)
  */
-export async function update(req: Request, res: Response) {
+export const update = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const parse = UpdatePlanDto.safeParse(req.body);
@@ -125,12 +125,12 @@ export async function update(req: Request, res: Response) {
   });
 
   res.json(updated);
-}
+});
 
 /**
  * DELETE /plans/:id - Xóa gói tập (Admin only)
  */
-export async function deletePlan(req: Request, res: Response) {
+export const deletePlan = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const plan = await prisma.plan.findUnique({
@@ -155,4 +155,4 @@ export async function deletePlan(req: Request, res: Response) {
   await prisma.plan.delete({ where: { id } });
 
   res.json({ ok: true, message: "Đã xóa gói tập" });
-}
+});

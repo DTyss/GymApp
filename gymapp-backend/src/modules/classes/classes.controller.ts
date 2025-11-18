@@ -3,12 +3,12 @@ import { prisma } from "../../libs/prisma";
 import { parsePaging, toSkipTake } from "../../utils/paging";
 import { parseSort } from "../../utils/sort";
 import { CreateClassDto, UpdateClassDto } from "./classes.dto";
-import { AppError } from "../../utils/errors";
+import { AppError, asyncHandler } from "../../utils/errors";
 
 /**
  * GET /classes - Lấy danh sách lớp học với pagination & filters
  */
-export async function list(req: Request, res: Response) {
+export const list = asyncHandler(async (req: Request, res: Response) => {
   const { from, to, branchId, trainerId } = req.query;
   const paging = parsePaging(req.query);
   const { skip, take } = toSkipTake(paging);
@@ -57,12 +57,12 @@ export async function list(req: Request, res: Response) {
   }));
 
   res.json({ items, total, page: paging.page, pageSize: paging.pageSize });
-}
+});
 
 /**
  * GET /classes/:id - Lấy chi tiết 1 lớp học
  */
-export async function getById(req: Request, res: Response) {
+export const getById = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
   
   const cls = await prisma.class.findUnique({
@@ -102,13 +102,13 @@ export async function getById(req: Request, res: Response) {
   };
 
   res.json(response);
-}
+});
 
 /**
  * POST /classes - Tạo lớp học mới (Trainer/Admin)
  * Body: { title, description?, trainerId, branchId, startTime, endTime, capacity }
  */
-export async function create(req: Request, res: Response) {
+export const create = asyncHandler(async (req: Request, res: Response) => {
   // Validate input với Zod
   const parse = CreateClassDto.safeParse(req.body);
   if (!parse.success) {
@@ -204,13 +204,13 @@ export async function create(req: Request, res: Response) {
   });
 
   res.status(201).json(cls);
-}
+});
 
 /**
  * PUT /classes/:id - Cập nhật lớp học (Trainer/Admin)
  * Body: { title?, description?, trainerId?, branchId?, startTime?, endTime?, capacity? }
  */
-export async function update(req: Request, res: Response) {
+export const update = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   // Validate input
@@ -307,13 +307,13 @@ export async function update(req: Request, res: Response) {
   });
 
   res.json(updated);
-}
+});
 
 /**
  * DELETE /classes/:id - Xóa lớp học (Admin only)
  * Chỉ xóa được nếu chưa có booking nào
  */
-export async function deleteClass(req: Request, res: Response) {
+export const deleteClass = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   // 1. Kiểm tra lớp tồn tại
@@ -344,4 +344,4 @@ export async function deleteClass(req: Request, res: Response) {
     ok: true, 
     message: "Đã xóa lớp học thành công" 
   });
-}
+});

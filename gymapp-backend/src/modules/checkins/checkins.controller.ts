@@ -3,11 +3,11 @@ import { prisma } from "../../libs/prisma";
 import { verifyQr } from "../../libs/crypto";
 import { Prisma } from "@prisma/client";
 import { signQr } from "../../libs/crypto";
-import { AppError } from "../../utils/errors";
+import { AppError, asyncHandler } from "../../utils/errors";
 import { parsePaging, toSkipTake } from "../../utils/paging";
 
 // body: { payload: { userId, nonce, exp, sig }, branchId }
-export async function verifyQrAndCheckin(req: Request & { user?: any }, res: Response) {
+export const verifyQrAndCheckin = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const { payload, branchId } = req.body as { payload: any; branchId?: number };
 
   if (!verifyQr(payload)) throw new AppError("INVALID_QR", 400);
@@ -56,19 +56,18 @@ export async function verifyQrAndCheckin(req: Request & { user?: any }, res: Res
     const code = message === "NO_MEMBERSHIP" ? 400 : 500;
     return res.status(code).json({ message });
   }
-  
-}
+});
 
-export async function newQr(req: Request & { user?: any }, res: Response) {
+export const newQr = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const uid = String(req.user!.id);
   const ttl = Number(process.env.QR_TTL_SECONDS || 120);
   const exp = Math.floor(Date.now() / 1000) + ttl;
   const nonce = cryptoRandom();
   const signed = signQr({ userId: uid, nonce, exp });
   res.json(signed);
-}
+});
 
-export async function myCheckins(req: Request & { user?: any }, res: Response) {
+export const myCheckins = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const userId = BigInt(req.user!.id);
   const paging = parsePaging(req.query);
   const { skip, take } = toSkipTake(paging);
@@ -96,7 +95,7 @@ export async function myCheckins(req: Request & { user?: any }, res: Response) {
   ]);
 
   res.json({ items, total, page: paging.page, pageSize: paging.pageSize });
-}
+});
 
 function cryptoRandom(len = 16) {
   return [...crypto.getRandomValues(new Uint8Array(len))].map(b => b.toString(16).padStart(2, "0")).join("");

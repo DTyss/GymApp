@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { prisma } from "../../libs/prisma";
 import { CreateBranchDto, UpdateBranchDto } from "./branches.dto";
-import { AppError } from "../../utils/errors";
+import { AppError, asyncHandler } from "../../utils/errors";
 
-export async function list(req: Request, res: Response) {
+export const list = asyncHandler(async (req: Request, res: Response) => {
   const { active } = req.query;
   
   const where: any = {};
@@ -30,9 +30,9 @@ export async function list(req: Request, res: Response) {
   });
 
   res.json(branches);
-}
+});
 
-export async function getById(req: Request, res: Response) {
+export const getById = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
   
   const branch = await prisma.branch.findUnique({
@@ -52,9 +52,9 @@ export async function getById(req: Request, res: Response) {
   }
 
   res.json(branch);
-}
+});
 
-export async function create(req: Request, res: Response) {
+export const create = asyncHandler(async (req: Request, res: Response) => {
   const parse = CreateBranchDto.safeParse(req.body);
   if (!parse.success) {
     return res.status(400).json({
@@ -82,9 +82,9 @@ export async function create(req: Request, res: Response) {
   });
 
   res.status(201).json(branch);
-}
+});
 
-export async function update(req: Request, res: Response) {
+export const update = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const parse = UpdateBranchDto.safeParse(req.body);
@@ -115,9 +115,9 @@ export async function update(req: Request, res: Response) {
   });
 
   res.json(updated);
-}
+});
 
-export async function deleteBranch(req: Request, res: Response) {
+export const deleteBranch = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const branch = await prisma.branch.findUnique({
@@ -147,4 +147,4 @@ export async function deleteBranch(req: Request, res: Response) {
   await prisma.branch.delete({ where: { id } });
 
   res.json({ ok: true, message: "Đã xóa chi nhánh" });
-}
+});

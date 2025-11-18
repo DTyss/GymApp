@@ -4,9 +4,9 @@ import { Prisma } from "@prisma/client";
 import { CreateBookingDto } from "./bookings.dto";
 import { parsePaging, toSkipTake } from "../../utils/paging";
 import { parseSort } from "../../utils/sort";
-import { AppError } from "../../utils/errors";
+import { AppError, asyncHandler } from "../../utils/errors";
 
-export async function myBookings(req: Request & { user?: any }, res: Response) {
+export const myBookings = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const userId = BigInt(req.user!.id);
   const paging = parsePaging(req.query);
   const { skip, take } = toSkipTake(paging);
@@ -35,9 +35,9 @@ export async function myBookings(req: Request & { user?: any }, res: Response) {
   ]);
 
   res.json({ items, total, page: paging.page, pageSize: paging.pageSize });
-}
+});
 
-export async function create(req: Request & { user?: any }, res: Response) {
+export const create = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   // 1) Validate body bằng Zod
   const parse = CreateBookingDto.safeParse(req.body);
   if (!parse.success) {
@@ -97,9 +97,9 @@ export async function create(req: Request & { user?: any }, res: Response) {
   if (e.code === "P2002") return res.status(409).json({ code: "UNIQUE_VIOLATION", message: "Already exists" });
   throw e; // để errorHandler bắt và log
 }
-}
+});
 
-export async function cancel(req: Request & { user?: any }, res: Response) {
+export const cancel = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const userId = BigInt(req.user!.id);
   const id = BigInt(req.params.id);
 
@@ -125,4 +125,4 @@ export async function cancel(req: Request & { user?: any }, res: Response) {
   });
 
   res.json(updated);
-}
+});

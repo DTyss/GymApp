@@ -22,13 +22,19 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        // API Base URL
-        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/\"")
     }
 
     buildTypes {
+        debug {
+            // Development - Emulator
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/\"")
+            // Development - Real Device (uncomment và thay YOUR_IP)
+            // buildConfigField("String", "BASE_URL", "\"http://YOUR_IP:8080/\"")
+        }
         release {
+            // Production - Thay bằng domain thật
+            buildConfigField("String", "BASE_URL", "\"https://api.yourdomain.com/\"")
+            
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

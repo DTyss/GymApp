@@ -2,8 +2,9 @@ import { Request, Response } from "express";
 import { prisma } from "../../libs/prisma";
 import { sendToTokens } from "../../libs/fcm";
 import { parsePaging, toSkipTake } from "../../utils/paging";
+import { asyncHandler } from "../../utils/errors";
 
-export async function sendTest(req: Request & { user?: any }, res: Response) {
+export const sendTest = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const senderId = BigInt(req.user!.id);
   const { title = "GymApp", body = "Hello from server", userId } = req.body || {};
   const targetUserId = userId ? BigInt(userId) : senderId;
@@ -23,9 +24,9 @@ export async function sendTest(req: Request & { user?: any }, res: Response) {
 
   const result = await sendToTokens(tokens, title, body);
   res.json({ ok: true, sent: result.successCount, failed: result.failureCount });
-}
+});
 
-export async function myNoti(req: Request & { user?: any }, res: Response) {
+export const myNoti = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const userId = BigInt(req.user!.id);
   const paging = parsePaging(req.query);
   const { skip, take } = toSkipTake(paging);
@@ -49,9 +50,9 @@ export async function myNoti(req: Request & { user?: any }, res: Response) {
   ]);
 
   res.json({ items, total, page: paging.page, pageSize: paging.pageSize });
-}
+});
 
-export async function markAsRead(req: Request & { user?: any }, res: Response) {
+export const markAsRead = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const userId = BigInt(req.user!.id);
   const notificationId = BigInt(req.params.id);
 
@@ -69,9 +70,9 @@ export async function markAsRead(req: Request & { user?: any }, res: Response) {
   });
 
   res.json(updated);
-}
+});
 
-export async function markAllAsRead(req: Request & { user?: any }, res: Response) {
+export const markAllAsRead = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const userId = BigInt(req.user!.id);
 
   const result = await prisma.notification.updateMany({
@@ -89,4 +90,4 @@ export async function markAllAsRead(req: Request & { user?: any }, res: Response
     message: "Đã đánh dấu tất cả đã đọc",
     count: result.count  
   });
-}
+});

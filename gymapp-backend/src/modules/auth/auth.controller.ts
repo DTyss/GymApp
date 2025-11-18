@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { prisma } from "../../libs/prisma";
 import { hashPassword, verifyPassword, signJwt } from "../../libs/auth";
+import { asyncHandler } from "../../utils/errors";
 
-export async function register(req: Request, res: Response) {
+export const register = asyncHandler(async (req: Request, res: Response) => {
   const { email, phone, fullName, password } = req.body || {};
   if ((!email && !phone) || !fullName || !password) {
     return res.status(400).json({ message: "email/phone, fullName, password required" });
@@ -17,9 +18,9 @@ export async function register(req: Request, res: Response) {
     // unique email/phone có thể trùng
     return res.status(400).json({ message: "REGISTER_FAILED", detail: e?.message });
   }
-}
+});
 
-export async function login(req: Request, res: Response) {
+export const login = asyncHandler(async (req: Request, res: Response) => {
   const { email, phone, password } = req.body || {};
   if (!password || (!email && !phone)) return res.status(400).json({ message: "Missing credentials" });
 
@@ -35,9 +36,9 @@ export async function login(req: Request, res: Response) {
     token,
     user: { id: user.id, fullName: user.fullName, role: user.role }
   });
-}
+});
 
-export async function me(req: Request & { user?: any }, res: Response) {
+export const me = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const id = BigInt(req.user!.id);
   const user = await prisma.user.findUnique({
     where: { id },
@@ -52,9 +53,9 @@ export async function me(req: Request & { user?: any }, res: Response) {
   });
   if (!user) return res.status(404).json({ message: "USER_NOT_FOUND" });
   res.json(user);
-}
+});
 
-export async function changePassword(req: Request & { user?: any }, res: Response) {
+export const changePassword = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const id = BigInt(req.user!.id);
   const { currentPassword, newPassword } = req.body || {};
   if (!currentPassword || !newPassword) return res.status(400).json({ message: "currentPassword & newPassword required" });
@@ -68,4 +69,4 @@ export async function changePassword(req: Request & { user?: any }, res: Respons
   const passwordHash = await hashPassword(newPassword);
   await prisma.user.update({ where: { id }, data: { passwordHash } });
   res.json({ ok: true });
-}
+});

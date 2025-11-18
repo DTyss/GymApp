@@ -12,6 +12,11 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// DataStore singleton - MUST be at top level
+private val Context.themeDataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "theme_preferences"
+)
+
 /**
  * ThemeManager - Quản lý theme settings (Dark/Light mode)
  */
@@ -19,10 +24,6 @@ import javax.inject.Singleton
 class ThemeManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val Context.themeDataStore: DataStore<Preferences> by preferencesDataStore(
-        name = "theme_preferences"
-    )
-
     companion object {
         private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
     }

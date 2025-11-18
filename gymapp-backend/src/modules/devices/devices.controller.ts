@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { prisma } from "../../libs/prisma";
+import { asyncHandler } from "../../utils/errors";
 
-export async function registerToken(req: Request & { user?: any }, res: Response) {
+export const registerToken = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const userId = BigInt(req.user!.id);
   const { fcmToken, platform } = req.body || {};
   if (!fcmToken) return res.status(400).json({ message: "fcmToken required" });
@@ -13,10 +14,10 @@ export async function registerToken(req: Request & { user?: any }, res: Response
     update: { userId, platform }
   });
   res.json({ ok: true, deviceId: dev.id });
-}
+});
 
-export async function myDevices(req: Request & { user?: any }, res: Response) {
+export const myDevices = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const userId = BigInt(req.user!.id);
   const list = await prisma.device.findMany({ where: { userId }, orderBy: { createdAt: "desc" } });
   res.json(list);
-}
+});

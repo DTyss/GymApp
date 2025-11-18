@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// DataStore singleton - MUST be at top level
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_prefs")
+
 /**
  * TokenManager - Quản lý JWT token
  * Sử dụng DataStore để lưu token persistent
@@ -21,8 +24,6 @@ import javax.inject.Singleton
 class TokenManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_prefs")
-
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("jwt_token")
         private val USER_ID_KEY = stringPreferencesKey("user_id")

@@ -2,13 +2,13 @@ import { Request, Response } from "express";
 import { prisma } from "../../libs/prisma";
 import { parsePaging, toSkipTake } from "../../utils/paging";
 import { CreateMembershipDto, ExtendMembershipDto } from "./memberships.dto";
-import { AppError } from "../../utils/errors";
+import { AppError, asyncHandler } from "../../utils/errors";
 
 /**
  * GET /memberships - Lấy danh sách memberships (Admin/Receptionist)
  * Query: userId, status, page, pageSize
  */
-export async function list(req: Request, res: Response) {
+export const list = asyncHandler(async (req: Request, res: Response) => {
   const { userId, status } = req.query;
   const paging = parsePaging(req.query);
   const { skip, take } = toSkipTake(paging);
@@ -38,12 +38,12 @@ export async function list(req: Request, res: Response) {
   ]);
 
   res.json({ items, total, page: paging.page, pageSize: paging.pageSize });
-}
+});
 
 /**
  * GET /memberships/:id - Lấy chi tiết membership
  */
-export async function getById(req: Request, res: Response) {
+export const getById = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const membership = await prisma.membership.findUnique({
@@ -61,13 +61,13 @@ export async function getById(req: Request, res: Response) {
   }
 
   res.json(membership);
-}
+});
 
 /**
  * POST /memberships - Tạo membership mới cho user (Admin/Receptionist)
  * Body: { userId, planId, startDate? }
  */
-export async function create(req: Request, res: Response) {
+export const create = asyncHandler(async (req: Request, res: Response) => {
   const parse = CreateMembershipDto.safeParse(req.body);
   if (!parse.success) {
     return res.status(400).json({
@@ -118,13 +118,13 @@ export async function create(req: Request, res: Response) {
   });
 
   res.status(201).json(membership);
-}
+});
 
 /**
  * PUT /memberships/:id/extend - Gia hạn membership (Admin/Receptionist)
  * Body: { additionalDays?, additionalSessions? }
  */
-export async function extend(req: Request, res: Response) {
+export const extend = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const parse = ExtendMembershipDto.safeParse(req.body);
@@ -173,12 +173,12 @@ export async function extend(req: Request, res: Response) {
   });
 
   res.json(updated);
-}
+});
 
 /**
  * PUT /memberships/:id/pause - Tạm dừng membership (Admin)
  */
-export async function pause(req: Request, res: Response) {
+export const pause = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const membership = await prisma.membership.findUnique({ where: { id } });
@@ -196,12 +196,12 @@ export async function pause(req: Request, res: Response) {
   });
 
   res.json(updated);
-}
+});
 
 /**
  * PUT /memberships/:id/resume - Kích hoạt lại membership (Admin)
  */
-export async function resume(req: Request, res: Response) {
+export const resume = asyncHandler(async (req: Request, res: Response) => {
   const id = BigInt(req.params.id);
 
   const membership = await prisma.membership.findUnique({ where: { id } });
@@ -224,12 +224,12 @@ export async function resume(req: Request, res: Response) {
   });
 
   res.json(updated);
-}
+});
 
 /**
  * GET /memberships/my/list - Member xem memberships của mình
  */
-export async function myMemberships(req: Request & { user?: any }, res: Response) {
+export const myMemberships = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
   const userId = BigInt(req.user!.id);
 
   const memberships = await prisma.membership.findMany({
@@ -239,4 +239,4 @@ export async function myMemberships(req: Request & { user?: any }, res: Response
   });
 
   res.json(memberships);
-}
+});

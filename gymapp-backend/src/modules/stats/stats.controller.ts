@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { prisma } from "../../libs/prisma";
+import { asyncHandler } from "../../utils/errors";
 
 /**
  * GET /stats/dashboard - Tổng quan hệ thống
  * Trả về các số liệu tổng quan cho admin dashboard
  */
-export async function dashboard(req: Request, res: Response) {
+export const dashboard = asyncHandler(async (req: Request, res: Response) => {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -104,13 +105,13 @@ export async function dashboard(req: Request, res: Response) {
       active: activeMemberships
     }
   });
-}
+});
 
 /**
  * GET /stats/members - Thống kê hội viên
  * Query: from, to (date range)
  */
-export async function memberStats(req: Request, res: Response) {
+export const memberStats = asyncHandler(async (req: Request, res: Response) => {
   const { from, to } = req.query;
   
   const where: any = {};
@@ -168,13 +169,13 @@ export async function memberStats(req: Request, res: Response) {
     newMembers,
     withActiveMembership
   });
-}
+});
 
 /**
  * GET /stats/checkins - Thống kê check-in
  * Query: from, to, branchId
  */
-export async function checkinStats(req: Request, res: Response) {
+export const checkinStats = asyncHandler(async (req: Request, res: Response) => {
   const { from, to, branchId } = req.query;
   
   const where: any = {};
@@ -224,14 +225,14 @@ export async function checkinStats(req: Request, res: Response) {
     byMethod,
     byDay
   });
-}
+});
 
 /**
  * GET /stats/revenue - Thống kê doanh thu (giả định)
  * Tính dựa trên số memberships được tạo
  * Query: from, to (date range)
  */
-export async function revenueStats(req: Request, res: Response) {
+export const revenueStats = asyncHandler(async (req: Request, res: Response) => {
   const { from, to } = req.query;
   
   const where: any = {};
@@ -275,4 +276,4 @@ export async function revenueStats(req: Request, res: Response) {
     totalMemberships: memberships.length,
     byPlan
   });
-}
+});
